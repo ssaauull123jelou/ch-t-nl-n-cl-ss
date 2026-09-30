@@ -1,0 +1,1414 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IA Chat Cole - WhatsApp Pro Ultimate</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Firebase SDKs (Compat) -->
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
+    <style>
+        .custom-font-sans { font-family: 'Segoe UI', Helvetica, Arial, sans-serif; }
+        .custom-font-serif { font-family: 'Georgia', serif; }
+        .custom-font-mono { font-family: 'Courier New', monospace; }
+        .custom-font-comic { font-family: 'Comic Sans MS', cursive, sans-serif; }
+        .whatsapp-bg {
+            background-color: #0b141a;
+            background-image: radial-gradient(circle, rgba(255,255,255,0.03) 1px, transparent 1px);
+            background-size: 20px 20px;
+        }
+        .msg-options { display: none; }
+        .message-bubble:hover .msg-options { display: flex; }
+    </style>
+</head>
+<body class="bg-[#0b141a] text-[#e9edef] h-screen flex flex-col overflow-hidden custom-font-sans" id="appBody">
+
+    <!-- PANTALLA DE AUTENTICACIÓN -->
+    <div id="authScreen" class="fixed inset-0 bg-[#111b21] z-50 flex items-center justify-center p-4">
+        <div class="bg-[#202c33] border border-[#222d34] rounded-xl w-full max-w-md p-8 shadow-2xl">
+            <div class="text-center mb-6">
+                <div class="w-16 h-16 bg-[#00a884] rounded-full flex items-center justify-center mx-auto mb-3 text-white text-3xl shadow-lg">
+                    <i class="fa-brands.whatsapp fa-brands fa-whatsapp"></i>
+                </div>
+                <h1 class="text-2xl font-bold text-[#e9edef]">IA Chat Cole</h1>
+                <p class="text-[#8696a0] text-sm mt-1">Firebase Realtime Database</p>
+            </div>
+
+            <!-- Tabs Auth -->
+            <div class="flex border-b border-[#222d34] mb-6">
+                <button onclick="switchAuthTab('login')" id="tabLoginBtn" class="flex-1 pb-3 text-xs font-semibold border-b-2 border-[#00a884] text-[#00a884]">Iniciar</button>
+                <button onclick="switchAuthTab('register')" id="tabRegisterBtn" class="flex-1 pb-3 text-xs font-semibold text-[#8696a0] border-b-2 border-transparent">Registro</button>
+                <button onclick="switchAuthTab('recover')" id="tabRecoverBtn" class="flex-1 pb-3 text-xs font-semibold text-[#8696a0] border-b-2 border-transparent">Recuperar</button>
+            </div>
+
+            <!-- Formulario Login -->
+            <div id="loginForm" class="space-y-4">
+                <div>
+                    <label class="block text-xs uppercase font-bold text-[#8696a0] mb-1">Tu @usuario</label>
+                    <input type="text" id="loginUser" placeholder="@usuario" class="w-full bg-[#2a3942] text-[#e9edef] border border-transparent rounded-lg px-4 py-3 focus:outline-none focus:border-[#00a884]">
+                </div>
+                <div>
+                    <label class="block text-xs uppercase font-bold text-[#8696a0] mb-1">Contraseña</label>
+                    <input type="password" id="loginPass" placeholder="••••••••" class="w-full bg-[#2a3942] text-[#e9edef] border border-transparent rounded-lg px-4 py-3 focus:outline-none focus:border-[#00a884]">
+                </div>
+                <button onclick="handleLogin()" class="w-full bg-[#00a884] hover:bg-[#008f72] transition font-bold py-3 rounded-lg shadow-lg text-white">Entrar al Chat</button>
+            </div>
+
+            <!-- Formulario Registro -->
+            <div id="registerForm" class="space-y-4 hidden">
+                <div>
+                    <label class="block text-xs uppercase font-bold text-[#8696a0] mb-1">@usuario (sin restricciones)</label>
+                    <input type="text" id="regUser" placeholder="@tu_nombre" class="w-full bg-[#2a3942] text-[#e9edef] border border-transparent rounded-lg px-4 py-3 focus:outline-none focus:border-[#00a884]">
+                </div>
+                <div>
+                    <label class="block text-xs uppercase font-bold text-[#8696a0] mb-1">Contraseña (sin límites)</label>
+                    <input type="text" id="regPass" placeholder="Cualquier contraseña" class="w-full bg-[#2a3942] text-[#e9edef] border border-transparent rounded-lg px-4 py-3 focus:outline-none focus:border-[#00a884]">
+                </div>
+                <div>
+                    <label class="block text-xs uppercase font-bold text-[#8696a0] mb-1">Foto de Perfil (Dispositivo o Emoji)</label>
+                    <div class="flex gap-2 items-center mb-2">
+                        <input type="file" id="regFile" accept="image/*" class="text-xs text-[#8696a0] file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-[#00a884] file:text-white hover:file:bg-[#008f72]">
+                    </div>
+                    <div class="flex items-center justify-between">
+                        <span class="text-xs text-[#8696a0]">O selecciona un emoji:</span>
+                        <button onclick="openEmojiPickerForReg()" class="text-xs text-[#00a884] font-bold hover:underline"><i class="fa-solid fa-face-smile"></i> Elegir de la lista</button>
+                    </div>
+                    <div id="regSelectedEmojiDisplay" class="mt-2 text-2xl bg-[#2a3942] w-10 h-10 rounded-full flex items-center justify-center">👤</div>
+                </div>
+                <button onclick="handleRegister()" class="w-full bg-[#00a884] hover:bg-[#008f72] transition font-bold py-3 rounded-lg shadow-lg text-white">Registrarse y Entrar</button>
+            </div>
+
+            <!-- Formulario Recuperación -->
+            <div id="recoverForm" class="space-y-4 hidden">
+                <div>
+                    <label class="block text-xs uppercase font-bold text-[#8696a0] mb-1">Tu @usuario</label>
+                    <input type="text" id="recovUser" placeholder="@usuario" class="w-full bg-[#2a3942] text-[#e9edef] border border-transparent rounded-lg px-4 py-3 focus:outline-none focus:border-[#00a884]">
+                </div>
+                <div>
+                    <label class="block text-xs uppercase font-bold text-[#8696a0] mb-1">Código de Recuperación (30 caracteres)</label>
+                    <textarea id="recovCode" rows="2" placeholder="Pega tu código de 30 caracteres..." class="w-full bg-[#2a3942] text-[#e9edef] border border-transparent rounded-lg p-3 text-xs focus:outline-none focus:border-[#00a884]"></textarea>
+                </div>
+                <div>
+                    <label class="block text-xs uppercase font-bold text-[#8696a0] mb-1">Nueva Contraseña</label>
+                    <input type="password" id="recovNewPass" placeholder="Nueva contraseña" class="w-full bg-[#2a3942] text-[#e9edef] border border-transparent rounded-lg px-4 py-3 focus:outline-none focus:border-[#00a884]">
+                </div>
+                <button onclick="handleRecovery()" class="w-full bg-[#00a884] hover:bg-[#008f72] transition font-bold py-3 rounded-lg shadow-lg text-white">Restablecer y Entrar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL DE CÓDIGO DE RECUPERACIÓN -->
+    <div id="recoveryModal" class="fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-[#202c33] border border-[#222d34] rounded-xl w-full max-w-md p-6 text-center shadow-2xl">
+            <div class="w-12 h-12 bg-emerald-500/20 text-emerald-400 rounded-full flex items-center justify-center mx-auto mb-3 text-xl">
+                <i class="fa-solid fa-key"></i>
+            </div>
+            <h2 class="text-xl font-bold mb-2 text-[#e9edef]">¡Cuenta Creada Automáticamente!</h2>
+            <p class="text-[#8696a0] text-xs mb-4">Tu sesión está iniciada. Guarda muy bien este <strong>código de recuperación de 30 caracteres</strong>:</p>
+            <div id="recoveryCodeBox" class="bg-[#111b21] p-4 rounded-lg font-mono text-xs text-[#00a884] break-all border border-[#2a3942] select-all mb-6"></div>
+            <button onclick="closeRecoveryModal()" class="w-full bg-[#00a884] hover:bg-[#008f72] transition font-bold py-2.5 rounded-lg text-white">Continuar al Chat</button>
+        </div>
+    </div>
+
+    <!-- APLICACIÓN PRINCIPAL -->
+    <div id="mainApp" class="flex h-full w-full hidden relative">
+        
+        <!-- SIDEBAR -->
+        <aside class="w-80 bg-[#111b21] border-r border-[#222d34] flex flex-col justify-between">
+            <div>
+                <!-- Header Perfil Usuario -->
+                <div class="h-16 px-4 bg-[#202c33] border-b border-[#222d34] flex items-center justify-between">
+                    <div class="flex items-center gap-3">
+                        <div id="myAvatarDisplay" class="w-10 h-10 rounded-full bg-[#2a3942] flex items-center justify-center overflow-hidden text-lg"></div>
+                        <h3 id="myUsernameDisplay" class="font-bold text-sm text-[#e9edef]"></h3>
+                    </div>
+                    <div class="flex gap-3 text-[#8696a0]">
+                        <button onclick="openConfig()" title="Configuración" class="hover:text-[#e9edef]"><i class="fa-solid fa-gear text-lg"></i></button>
+                    </div>
+                </div>
+
+                <!-- Tabs Navegación -->
+                <div class="flex bg-[#111b21] border-b border-[#222d34]">
+                    <button onclick="switchNavTab('chats')" id="navChatsBtn" class="flex-1 py-3 text-xs font-bold border-b-2 border-[#00a884] text-[#00a884] transition">Chats</button>
+                    <button onclick="switchNavTab('thematic')" id="navThematicBtn" class="flex-1 py-3 text-xs font-bold text-[#8696a0] border-b-2 border-transparent transition">Temáticos</button>
+                    <button onclick="switchNavTab('friends')" id="navFriendsBtn" class="flex-1 py-3 text-xs font-bold text-[#8696a0] border-b-2 border-transparent transition">Amigos</button>
+                </div>
+
+                <!-- Contenido Sidebar -->
+                <div class="p-2 overflow-y-auto h-[calc(100vh-128px)] space-y-1">
+                    
+                    <!-- TAB CHATS -->
+                    <div id="tabChatsContent" class="space-y-1">
+                        <div class="flex justify-between items-center px-2 py-2">
+                            <span class="text-xs font-bold uppercase text-[#8696a0]">Conversaciones</span>
+                            <div class="flex gap-2">
+                                <button onclick="openNewChatModal()" title="Nuevo Chat por @" class="text-xs bg-[#202c33] hover:bg-[#2a3942] text-[#8696a0] hover:text-[#e9edef] p-2 rounded-full transition"><i class="fa-solid fa-comment-medical"></i></button>
+                                <button onclick="openNewGroupModal()" title="Crear Grupo" class="text-xs bg-[#202c33] hover:bg-[#2a3942] text-[#8696a0] hover:text-[#e9edef] p-2 rounded-full transition"><i class="fa-solid fa-users"></i></button>
+                            </div>
+                        </div>
+                        <div id="chatsList" class="space-y-1"></div>
+                    </div>
+
+                    <!-- TAB TEMÁTICOS -->
+                    <div id="tabThematicContent" class="space-y-1 hidden">
+                        <div class="flex justify-between items-center px-2 py-2">
+                            <span class="text-xs font-bold uppercase text-[#8696a0]">Grupos Temáticos</span>
+                            <button id="createThematicBtn" onclick="openNewThematicModal()" title="Crear Tema" class="text-xs bg-[#00a884] text-white px-2.5 py-1 rounded-full font-bold hidden">+ Nuevo</button>
+                        </div>
+                        <div id="thematicList" class="space-y-1"></div>
+                    </div>
+
+                    <!-- TAB AMIGOS -->
+                    <div id="tabFriendsContent" class="space-y-3 hidden">
+                        <div class="flex justify-between items-center px-2 py-2">
+                            <span class="text-xs font-bold uppercase text-[#8696a0]">Solicitudes & Amigos</span>
+                            <button onclick="openAddFriendModal()" class="text-xs bg-[#202c33] text-[#8696a0] hover:text-[#e9edef] px-2.5 py-1 rounded-full font-bold">+ Solicitar</button>
+                        </div>
+                        <div>
+                            <h4 class="text-[10px] uppercase font-bold text-indigo-400 px-2 mb-1">Solicitudes Pendientes</h4>
+                            <div id="friendRequestsList" class="space-y-1 mb-3"></div>
+                        </div>
+                        <div>
+                            <h4 class="text-[10px] uppercase font-bold text-emerald-400 px-2 mb-1">Lista de Amigos</h4>
+                            <div id="friendsList" class="space-y-1"></div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </aside>
+
+        <!-- ÁREA PRINCIPAL DE CHAT -->
+        <main class="flex-1 flex flex-col whatsapp-bg" id="chatMainContainer">
+            
+            <!-- Header Chat Activo -->
+            <div id="chatHeader" class="h-16 border-b border-[#222d34] px-6 flex items-center justify-between bg-[#202c33] cursor-pointer hover:bg-[#233138] transition" onclick="openActiveChatProfile()">
+                <div class="flex items-center gap-3">
+                    <div id="activeChatAvatar" class="w-10 h-10 rounded-full bg-[#2a3942] flex items-center justify-center text-lg">💬</div>
+                    <div>
+                        <h2 id="activeChatTitle" class="font-bold text-sm text-[#e9edef]">Selecciona un chat</h2>
+                        <span id="activeChatSub" class="text-xs text-[#8696a0]">Haz clic aquí para ver perfil y apodos</span>
+                    </div>
+                </div>
+                <div id="activeChatActions" class="flex gap-2" onclick="event.stopPropagation()"></div>
+            </div>
+
+            <!-- Lista de Mensajes -->
+            <div id="messagesContainer" class="flex-1 p-6 overflow-y-auto space-y-3 flex flex-col">
+                <div class="m-auto text-center text-[#8696a0]">
+                    <i class="fa-brands fa-whatsapp text-6xl mb-3 opacity-30"></i>
+                    <p class="text-sm">Envía y recibe mensajes seguros.</p>
+                </div>
+            </div>
+
+            <!-- BARRA INFERIOR DE CHAT -->
+            <div id="chatInputArea" class="px-4 py-3 bg-[#202c33] border-t border-[#222d34] flex items-center gap-3 relative hidden">
+                <button onclick="openChatEmojiPicker()" class="text-[#8696a0] hover:text-[#e9edef] text-xl transition"><i class="fa-regular fa-face-smile"></i></button>
+
+                <div class="relative">
+                    <button onclick="toggleMediaMenu()" class="text-[#8696a0] hover:text-[#e9edef] text-xl transition"><i class="fa-solid fa-paperclip"></i></button>
+                    <div id="mediaMenu" class="absolute bottom-12 left-0 bg-[#233138] border border-[#222d34] rounded-xl p-3 hidden shadow-2xl flex flex-col gap-2 z-30 min-w-[160px]">
+                        <label class="flex items-center gap-2.5 text-sm text-[#e9edef] hover:bg-[#111b21] p-2 rounded cursor-pointer transition">
+                            <i class="fa-solid fa-image text-purple-400"></i> Foto / Video
+                            <input type="file" id="mediaImgVidInput" accept="image/*,video/*" class="hidden" onchange="sendMediaFile(this, 'media')">
+                        </label>
+                        <label class="flex items-center gap-2.5 text-sm text-[#e9edef] hover:bg-[#111b21] p-2 rounded cursor-pointer transition">
+                            <i class="fa-solid fa-file text-blue-400"></i> Documento
+                            <input type="file" id="mediaFileInput" class="hidden" onchange="sendMediaFile(this, 'file')">
+                        </label>
+                    </div>
+                </div>
+
+                <div class="flex-1 flex items-center bg-[#2a3942] rounded-lg px-4 py-2" id="inputWrapper">
+                    <input type="text" id="messageInput" placeholder="Escribe un mensaje..." onkeypress="handleMsgKeyPress(event)" class="w-full bg-transparent focus:outline-none text-sm text-[#e9edef] placeholder-[#8696a0]">
+                    
+                    <div id="audioRecordingUI" class="hidden items-center justify-between w-full">
+                        <div class="flex items-center gap-3">
+                            <span class="w-3 h-3 bg-red-500 rounded-full animate-ping"></span>
+                            <span id="audioTimer" class="text-xs text-red-400 font-bold font-mono">0:00</span>
+                            <span class="text-xs text-[#8696a0]">Grabando nota de voz...</span>
+                        </div>
+                        <div class="flex gap-3">
+                            <button onclick="cancelAudioRecording()" class="text-red-400 hover:text-red-300 text-sm"><i class="fa-solid fa-trash"></i></button>
+                            <button onclick="stopAndSendAudio()" class="bg-[#00a884] text-white px-3 py-1 rounded-full text-xs font-bold hover:bg-[#008f72]"><i class="fa-solid fa-check"></i> Enviar</button>
+                        </div>
+                    </div>
+                </div>
+
+                <button id="sendBtn" onclick="sendMessage()" class="text-[#8696a0] hover:text-[#e9edef] text-xl transition"><i class="fa-solid fa-paper-plane"></i></button>
+                <button id="micBtn" onclick="startAudioRecording()" class="text-[#8696a0] hover:text-[#00a884] text-xl transition"><i class="fa-solid fa-microphone"></i></button>
+            </div>
+        </main>
+    </div>
+
+    <!-- MODAL SUPERIOR FLOTANTE DE EMOJIS (z-60) -->
+    <div id="emojiPickerModal" class="fixed inset-0 bg-black/80 z-[60] flex items-center justify-center p-4 hidden">
+        <div class="bg-[#202c33] border border-[#222d34] rounded-xl w-full max-w-lg p-5 flex flex-col h-[480px] shadow-2xl">
+            <div class="flex justify-between items-center mb-3 border-b border-[#222d34] pb-2">
+                <div class="flex items-center gap-2">
+                    <i class="fa-solid fa-face-smile text-[#00a884]"></i>
+                    <h3 class="font-bold text-sm text-[#e9edef]">Selector de Emojis</h3>
+                </div>
+                <button onclick="closeEmojiPickerModal()" class="text-[#8696a0] hover:text-[#e9edef] text-lg px-2 py-1"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div id="emojiGridContainer" class="flex-1 overflow-y-auto grid grid-cols-8 gap-2 text-2xl p-3 bg-[#111b21] rounded-lg"></div>
+        </div>
+    </div>
+
+    <!-- MODAL PERFIL Y DETALLES -->
+    <div id="profileModal" class="fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-[#202c33] border border-[#222d34] rounded-xl w-full max-w-md p-6 shadow-2xl">
+            <div class="flex justify-between items-center mb-4 border-b border-[#222d34] pb-2">
+                <h2 id="profileModalTitle" class="text-base font-bold text-[#e9edef]">Perfil / Detalles</h2>
+                <button onclick="closeModal('profileModal')" class="text-[#8696a0] hover:text-[#e9edef]"><i class="fa-solid fa-xmark text-xl"></i></button>
+            </div>
+            <div id="profileModalContent" class="space-y-4 text-sm text-[#e9edef]"></div>
+        </div>
+    </div>
+
+    <!-- MODAL CONFIGURACIÓN Y PERFIL PROPIO -->
+    <div id="configModal" class="fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-[#202c33] border border-[#222d34] rounded-xl w-full max-w-lg p-6 max-h-[90vh] overflow-y-auto shadow-2xl">
+            <div class="flex justify-between items-center mb-4 border-b border-[#222d34] pb-2">
+                <h2 class="text-lg font-bold text-[#e9edef]">Mi Perfil y Tema Visual</h2>
+                <button onclick="closeConfig()" class="text-[#8696a0] hover:text-[#e9edef] text-xl font-bold px-2 py-1"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-xs uppercase font-bold text-[#8696a0] mb-1">Cambiar Foto / Emoji</label>
+                    <div class="flex gap-3 items-center">
+                        <input type="file" id="configFileInput" accept="image/*" class="text-xs text-[#8696a0]">
+                        <button onclick="openEmojiPickerForConfig()" class="bg-[#2a3942] px-3 py-1.5 rounded-lg text-xs font-bold text-[#00a884] hover:bg-[#374248]">Elegir Emoji</button>
+                    </div>
+                </div>
+                <hr class="border-[#222d34]">
+                <h3 class="font-bold text-sm text-[#00a884]">Personalización Visual</h3>
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-bold text-[#8696a0] mb-1">Fondo General</label>
+                        <input type="color" id="confBgColor" value="#0b141a" class="w-full h-10 bg-[#2a3942] border-0 rounded cursor-pointer">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-[#8696a0] mb-1">Color de Burbujas</label>
+                        <input type="color" id="confChatColor" value="#005c4b" class="w-full h-10 bg-[#2a3942] border-0 rounded cursor-pointer">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-[#8696a0] mb-1">Color de Texto</label>
+                        <input type="color" id="confTextColor" value="#e9edef" class="w-full h-10 bg-[#2a3942] border-0 rounded cursor-pointer">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-[#8696a0] mb-1">Tipo de Letra</label>
+                        <select id="confFontType" class="w-full bg-[#2a3942] border border-transparent rounded-lg p-2 text-sm text-[#e9edef]">
+                            <option value="custom-font-sans">Segoe / Sans</option>
+                            <option value="custom-font-serif">Georgia / Serif</option>
+                            <option value="custom-font-mono">Courier / Mono</option>
+                            <option value="custom-font-comic">Comic Sans</option>
+                        </select>
+                    </div>
+                </div>
+                <button onclick="saveThemeConfig()" class="w-full bg-[#00a884] hover:bg-[#008f72] font-bold py-2.5 rounded-lg text-white">Guardar Cambios</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL NUEVO CHAT DIRECTO -->
+    <div id="newChatModal" class="fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-[#202c33] border border-[#222d34] rounded-xl w-full max-w-sm p-6 shadow-2xl">
+            <h2 class="text-base font-bold mb-3 text-[#e9edef]">Iniciar chat por @usuario</h2>
+            <input type="text" id="targetChatUser" placeholder="@usuario" class="w-full bg-[#2a3942] text-[#e9edef] border border-transparent rounded-lg px-4 py-2.5 mb-4 focus:outline-none focus:border-[#00a884]">
+            <div class="flex justify-end gap-2">
+                <button onclick="closeModal('newChatModal')" class="px-4 py-2 bg-[#2a3942] rounded-lg text-sm text-[#e9edef]">Cancelar</button>
+                <button onclick="startDirectChat()" class="px-4 py-2 bg-[#00a884] rounded-lg text-sm font-bold text-white">Abrir Chat</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL NUEVO GRUPO PERSONALIZADO -->
+    <div id="newGroupModal" class="fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-[#202c33] border border-[#222d34] rounded-xl w-full max-w-md p-6 shadow-2xl">
+            <h2 class="text-base font-bold mb-3 text-[#e9edef]">Crear Grupo Personalizado</h2>
+            <div class="space-y-3 mb-4">
+                <input type="text" id="newGroupName" placeholder="Nombre del grupo" class="w-full bg-[#2a3942] text-[#e9edef] border border-transparent rounded-lg px-4 py-2.5 focus:outline-none focus:border-[#00a884]">
+                <textarea id="newGroupDesc" placeholder="Descripción del grupo (opcional)" rows="2" class="w-full bg-[#2a3942] text-[#e9edef] border border-transparent rounded-lg p-3 text-xs focus:outline-none focus:border-[#00a884]"></textarea>
+                <div>
+                    <label class="block text-xs font-bold text-[#8696a0] mb-1">Icono del Grupo</label>
+                    <div class="flex gap-2 items-center">
+                        <button onclick="openEmojiPickerForGroup()" class="bg-[#2a3942] px-3 py-2 rounded-lg text-xs font-bold text-[#00a884]">Elegir Emoji</button>
+                        <span id="groupSelectedEmojiDisplay" class="text-2xl">👥</span>
+                    </div>
+                </div>
+                <input type="text" id="newGroupMembers" placeholder="@miembro1, @miembro2" class="w-full bg-[#2a3942] text-[#e9edef] border border-transparent rounded-lg px-4 py-2.5 focus:outline-none focus:border-[#00a884]">
+            </div>
+            <div class="flex justify-end gap-2">
+                <button onclick="closeModal('newGroupModal')" class="px-4 py-2 bg-[#2a3942] rounded-lg text-sm text-[#e9edef]">Cancelar</button>
+                <button onclick="createCustomGroup()" class="px-4 py-2 bg-[#00a884] rounded-lg text-sm font-bold text-white">Crear Grupo</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL NUEVO GRUPO TEMÁTICO (@ssaauull123) -->
+    <div id="newThematicModal" class="fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-[#202c33] border border-[#222d34] rounded-xl w-full max-w-md p-6 shadow-2xl">
+            <h2 class="text-base font-bold mb-3 text-[#e9edef]">Crear Grupo Temático (Exclusivo Admin)</h2>
+            <div class="space-y-3 mb-4">
+                <input type="text" id="newThematicName" placeholder="Nombre del tema (ej. Historia)" class="w-full bg-[#2a3942] text-[#e9edef] border border-transparent rounded-lg px-4 py-2.5 focus:outline-none focus:border-[#00a884]">
+                <textarea id="newThematicDesc" placeholder="Descripción del tema" rows="2" class="w-full bg-[#2a3942] text-[#e9edef] border border-transparent rounded-lg p-3 text-xs focus:outline-none focus:border-[#00a884]"></textarea>
+                <div>
+                    <label class="block text-xs font-bold text-[#8696a0] mb-1">Icono del Tema</label>
+                    <div class="flex gap-2 items-center">
+                        <button onclick="openEmojiPickerForThematic()" class="bg-[#2a3942] px-3 py-2 rounded-lg text-xs font-bold text-[#00a884]">Elegir Emoji</button>
+                        <span id="thematicSelectedEmojiDisplay" class="text-2xl">📚</span>
+                    </div>
+                </div>
+            </div>
+            <div class="flex justify-end gap-2">
+                <button onclick="closeModal('newThematicModal')" class="px-4 py-2 bg-[#2a3942] rounded-lg text-sm text-[#e9edef]">Cancelar</button>
+                <button onclick="createThematicGroup()" class="px-4 py-2 bg-[#00a884] rounded-lg text-sm font-bold text-white">Crear Tema</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL ENVIAR SOLICITUD DE AMISTAD -->
+    <div id="addFriendModal" class="fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-[#202c33] border border-[#222d34] rounded-xl w-full max-w-sm p-6 shadow-2xl">
+            <h2 class="text-base font-bold mb-3 text-[#e9edef]">Enviar Solicitud de Amistad</h2>
+            <input type="text" id="friendUser" placeholder="@usuario" class="w-full bg-[#2a3942] text-[#e9edef] border border-transparent rounded-lg px-4 py-2.5 mb-4 focus:outline-none focus:border-[#00a884]">
+            <div class="flex justify-end gap-2">
+                <button onclick="closeModal('addFriendModal')" class="px-4 py-2 bg-[#2a3942] rounded-lg text-sm text-[#e9edef]">Cancelar</button>
+                <button onclick="sendFriendRequest()" class="px-4 py-2 bg-[#00a884] rounded-lg text-sm font-bold text-white">Enviar Solicitud</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL ADMIN TOTAL DE GRUPO -->
+    <div id="groupAdminModal" class="fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-[#202c33] border border-[#222d34] rounded-xl w-full max-w-md p-6 shadow-2xl max-h-[90vh] overflow-y-auto">
+            <h2 class="text-base font-bold mb-3 text-[#e9edef]">Administración Total del Grupo</h2>
+            <div class="space-y-4 mb-4">
+                <div>
+                    <label class="block text-xs font-bold text-[#8696a0] mb-1">Nombre del Grupo</label>
+                    <input type="text" id="adminGroupName" class="w-full bg-[#2a3942] text-[#e9edef] border border-transparent rounded-lg px-4 py-2.5">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-[#8696a0] mb-1">Descripción</label>
+                    <textarea id="adminGroupDesc" rows="2" class="w-full bg-[#2a3942] text-[#e9edef] border border-transparent rounded-lg p-3 text-xs"></textarea>
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-[#8696a0] mb-1">Icono del Grupo</label>
+                    <div class="flex gap-2 items-center">
+                        <button onclick="openEmojiPickerForAdminGroup()" class="bg-[#2a3942] px-3 py-2 rounded-lg text-xs font-bold text-[#00a884]">Cambiar Emoji</button>
+                        <span id="adminGroupIconDisplay" class="text-2xl">👥</span>
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-[#8696a0] mb-1">Añadir Miembro (@)</label>
+                    <div class="flex gap-2">
+                        <input type="text" id="adminAddMemberInput" placeholder="@usuario" class="flex-1 bg-[#2a3942] text-[#e9edef] border border-transparent rounded-lg px-4 py-2.5">
+                        <button onclick="groupAdminAddUser()" class="bg-[#00a884] px-4 py-2.5 rounded-lg font-bold text-sm text-white">Añadir</button>
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-[#8696a0] mb-1">Miembros Actuales (Expulsar)</label>
+                    <div id="adminMembersListContainer" class="bg-[#111b21] p-3 rounded-lg space-y-2 max-h-36 overflow-y-auto"></div>
+                </div>
+            </div>
+            <div class="flex justify-end gap-2">
+                <button onclick="closeModal('groupAdminModal')" class="px-4 py-2 bg-[#2a3942] rounded-lg text-sm text-[#e9edef]">Cerrar</button>
+                <button onclick="saveGroupAdminChanges()" class="px-4 py-2 bg-[#00a884] rounded-lg text-sm font-bold text-white">Guardar Cambios</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- SCRIPT DE LÓGICA -->
+    <script>
+        const firebaseConfig = {
+            databaseURL: "https://iachatcole-default-rtdb.europe-west1.firebasedatabase.app/"
+        };
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
+
+        let currentUser = null;
+        let currentRegPic = '👤';
+        let currentGroupIcon = '👥';
+        let currentThematicIcon = '📚';
+        let currentAdminGroupIcon = '👥';
+        let currentActiveChat = null;
+        let friendsListObj = {};
+        let activeDirectChatsObj = {};
+        let nicknamesObj = {};
+        let emojiTargetMode = 'register';
+        let mediaRecorder = null;
+        let audioChunks = [];
+        let audioTimerInterval = null;
+        let audioSeconds = 0;
+        let unreadCounts = {};
+
+        const ALL_EMOJIS = [
+            "😀","😃","😄","😁","😆","😅","🤣","😊","😇","🙂","🙃","😉","😌","😍","🥰","😘","😗","😙","😚","😋","😛","😝","😜","🤪","🤨","🧐","🤓","😎","🥳","😏","😒","😞","😔","😟","😕","🙁","☹️","😣","😖","😫","😩","🥺","😢","😭","😤","😠","😡","🤬","🤯","😳","🥵","🥶","😱","😨","😰","😥","😓","🤗","🤔","🤭","🤫","🤥","😶","😐","😑","😬","🙄","😯","😦","😧","😴","🤤","😷","🤒","🤕","🤢","🤮","🤧","🥴","😵","🤠","🥳","🥸","😎","🤓","🧐","😕","🫤","😟","🙁","☹️","😮","😯","😲","😳","🥺","🥹","😦","😧","😨","😰","😥","😢","😭","😱","😖","😣","😞","😓","😩","😫","🥱","😤","😡","😠","🤬","😈","👿","💀","☠️","💩","🤡","👹","👺","👻","👽","👾","🤖","😺","😸","😹","😻","😼","😽","🙀","😿","😾",
+            "👋","🤚","🖐️","✋","🖖","👌","🤌","🤏","✌","🤞","🫰","🤟","🤘","🤙","👈","👉","👆","🖕","👇","☝️","👍","👎","✊","👊","🤛","🤜","👏","🙌","🫶","👐","🤲","🤝","🙏","✍️","💅","🤳","💪","🦾","🦵","🦿","🦶","👂","🦻","👃","🧠","🫀","🫁","🦷","🦴","👀","👁","👅","👄","💋","🩸",
+            "🐶","🐱","🐭","🐹","🐰","🦊","🐻","🐼","🐨","🐯","🦁","🐮","🐷","🐸","🐵","🐔","🐧","🐦","🐤","🐣","🐥","🦆","🦅","🦉","🦇","🐺","🐗","🐴","🦄","🐝","🪱","🐛","🦋","🐞","🐜","🦟","🦗","🕷️","🕸️","🦂","🐢","🐍","🦖","🦕","🐙","🦑","🦐","🦞","🦀","🪸","🐟","🐠","🐡","🐬","🐳","🐋","🐅","🐆","🦓","🦍","🦧","🐘","🦛","🦏","🐪","🐫","🦒","🦘","🦬","🐃","🐂","🐄","🐎","🐖","🐏","🐑","🦙","🐐","🦌","🐕","🐩","🦮","🐈","🐈‍⬛","🪶","🐓","🦃","🦚","🦜","🦢","🦩","🕊️","🐇","🦝","🦡","🦫","🦦","🦥","🐁","🐀","🐿️","🦔",
+            "🍏","🍎","🍐","🍊","🍋","🍌","🍉","🍇","🍓","🫐","🍈","🍒","🍑","🥭","🍍","🥥","🥝","🍅","🍆","🥑","🫛","🥦","🥬","🥒","🌶️","🫑","🌽","🥕","🫒","🧅","🥔","🍠","🥐","🥯","🍞","🥖","🥨","🧀","🥗","🍳","🥞","🥓","🍔","🍟","🍕","🌭","🥪","🌮","🌯","🫔","🥙","🍝","🍜","🍲","🍛","🍣","🍱","🥟","🦪","🍤","🍙","🍚","🍘","🍥","🥠","🥮","🍢","🍡","🍧","🍨","🍦","🥧","🧁","🍰","🎂","🍮","🍭","🍬","🍫","🍿","🍩","🍪","🌰","🍯","🥛","🍼","🫖","☕","🍵","🧃","🥤","🧋","🍶","🍺","🍻","🥂","🍷","🥃","🍸","🍹","🧉","🍾","🧊","🥄","🍴","🍽️","🥣","🥡","🥢","🧂",
+            "⚽","🏀","🏈","⚾","🥎","🎾","🏐","🏉","🥏","🎱","🪀","🏓","🏸","🏒","🏑","🥍","🏏","🪃","🥅","⛳","🪁","🏹","🎣","🤿","🛹","🛼","🛷","🥌","🎯","🎨","🧶","🪡","🪢","🥋","🥊","🎤","🎧","🎼","🎹","🥁","🪘","🎷","🎺","🪗","🎸","🪕","🎻","🎲","♟️","🎳","🎮","🎰","🧩","🧸","🪅","🪩","🪆","🪄","🔮","📿","🧿","💈","⚗","🔭","🔬","🕳️","💊","🩺","🚪","🛏️","🛋️","🪑","🚽","🪠","🚿","🛁","🪞","🪟","🧽","🪣","🧴","🧼","🧻","🧹","🧺","🧷","🔑","🗝","🔨","🪓","⛏️","⚒️","🛠️","🪛","🔧","🔩","⚙️","🗜️","⚖️","🔗","⛓️","🧰","🧲"
+        ];
+
+        function initDefaultData() {
+            db.ref('thematic_groups/deberes').once('value', snapshot => {
+                if(!snapshot.exists()) {
+                    db.ref('thematic_groups/deberes').set({
+                        name: 'Deberes',
+                        description: 'Grupo general de deberes escolares',
+                        icon: '📚',
+                        creator: '@ssaauull123',
+                        createdAt: Date.now()
+                    });
+                }
+            });
+        }
+        initDefaultData();
+
+        function switchAuthTab(tab) {
+            document.getElementById('loginForm').classList.add('hidden');
+            document.getElementById('registerForm').classList.add('hidden');
+            document.getElementById('recoverForm').classList.add('hidden');
+            document.getElementById('tabLoginBtn').className = "flex-1 pb-3 text-xs font-semibold text-[#8696a0] border-b-2 border-transparent";
+            document.getElementById('tabRegisterBtn').className = "flex-1 pb-3 text-xs font-semibold text-[#8696a0] border-b-2 border-transparent";
+            document.getElementById('tabRecoverBtn').className = "flex-1 pb-3 text-xs font-semibold text-[#8696a0] border-b-2 border-transparent";
+
+            if(tab === 'login') {
+                document.getElementById('loginForm').classList.remove('hidden');
+                document.getElementById('tabLoginBtn').className = "flex-1 pb-3 text-xs font-semibold border-b-2 border-[#00a884] text-[#00a884]";
+            } else if(tab === 'register') {
+                document.getElementById('registerForm').classList.remove('hidden');
+                document.getElementById('tabRegisterBtn').className = "flex-1 pb-3 text-xs font-semibold border-b-2 border-[#00a884] text-[#00a884]";
+            } else if(tab === 'recover') {
+                document.getElementById('recoverForm').classList.remove('hidden');
+                document.getElementById('tabRecoverBtn').className = "flex-1 pb-3 text-xs font-semibold border-b-2 border-[#00a884] text-[#00a884]";
+            }
+        }
+
+        function handleRegister() {
+            let user = document.getElementById('regUser').value.trim();
+            const pass = document.getElementById('regPass').value;
+            const fileInput = document.getElementById('regFile');
+
+            if(!user) return alert('Introduce un @usuario');
+            if(!user.startsWith('@')) user = '@' + user;
+
+            const safeKey = user.replace(/[@.#$\/\[\]]/g, '_');
+            const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+            let recoveryCode = '';
+            for(let i=0; i<30; i++) recoveryCode += chars.charAt(Math.floor(Math.random() * chars.length));
+
+            const saveUserData = (pic) => {
+                const userData = {
+                    username: user,
+                    password: pass,
+                    profilePic: pic || currentRegPic,
+                    recoveryCode: recoveryCode,
+                    theme: { bgColor: '#0b141a', chatColor: '#005c4b', textColor: '#e9edef', font: 'custom-font-sans', bgImage: '' }
+                };
+                db.ref('users/' + safeKey).set(userData).then(() => {
+                    currentUser = userData;
+                    document.getElementById('recoveryCodeBox').innerText = recoveryCode;
+                    document.getElementById('recoveryModal').classList.remove('hidden');
+                });
+            };
+
+            if(fileInput.files && fileInput.files[0]) {
+                const reader = new FileReader();
+                reader.onload = e => saveUserData(e.target.result);
+                reader.readAsDataURL(fileInput.files[0]);
+            } else {
+                saveUserData(currentRegPic);
+            }
+        }
+
+        function closeRecoveryModal() {
+            document.getElementById('recoveryModal').classList.add('hidden');
+            enterMainApp();
+        }
+
+        function handleLogin() {
+            let user = document.getElementById('loginUser').value.trim();
+            const pass = document.getElementById('loginPass').value;
+            if(!user) return alert('Introduce tu @usuario');
+            if(!user.startsWith('@')) user = '@' + user;
+
+            const safeKey = user.replace(/[@.#$\/\[\]]/g, '_');
+            db.ref('users/' + safeKey).once('value', snapshot => {
+                if(!snapshot.exists()) return alert('El usuario no existe');
+                const data = snapshot.val();
+                if(data.password !== pass) return alert('Contraseña incorrecta');
+                currentUser = data;
+                enterMainApp();
+            });
+        }
+
+        function handleRecovery() {
+            let user = document.getElementById('recovUser').value.trim();
+            const code = document.getElementById('recovCode').value.trim();
+            const newPass = document.getElementById('recovNewPass').value;
+
+            if(!user || !code || !newPass) return alert('Rellena todos los campos');
+            if(!user.startsWith('@')) user = '@' + user;
+
+            const safeKey = user.replace(/[@.#$\/\[\]]/g, '_');
+            db.ref('users/' + safeKey).once('value', snapshot => {
+                if(!snapshot.exists()) return alert('Usuario no encontrado');
+                const data = snapshot.val();
+                if(data.recoveryCode !== code) return alert('El código de recuperación de 30 caracteres es incorrecto');
+
+                db.ref(`users/${safeKey}/password`).set(newPass).then(() => {
+                    data.password = newPass;
+                    currentUser = data;
+                    alert('¡Contraseña restablecida con éxito!');
+                    enterMainApp();
+                });
+            });
+        }
+
+        function enterMainApp() {
+            document.getElementById('authScreen').classList.add('hidden');
+            document.getElementById('mainApp').classList.remove('hidden');
+            
+            document.getElementById('myUsernameDisplay').innerText = currentUser.username;
+            renderMyAvatar();
+            applyTheme(currentUser.theme);
+
+            if(currentUser.username === '@ssaauull123') {
+                document.getElementById('createThematicBtn').classList.remove('hidden');
+            }
+
+            loadUserDataLists();
+            openChat('global', 'Chat Global', 'Todos los usuarios', 'global_chat');
+        }
+
+        function renderMyAvatar() {
+            const el = document.getElementById('myAvatarDisplay');
+            if(currentUser.profilePic && currentUser.profilePic.startsWith('data:image')) {
+                el.innerHTML = `<img src="${currentUser.profilePic}" class="w-full h-full object-cover rounded-full">`;
+            } else {
+                el.innerHTML = currentUser.profilePic || '👤';
+            }
+        }
+
+        function switchNavTab(tab) {
+            document.getElementById('tabChatsContent').classList.add('hidden');
+            document.getElementById('tabThematicContent').classList.add('hidden');
+            document.getElementById('tabFriendsContent').classList.add('hidden');
+            
+            document.getElementById('navChatsBtn').className = "flex-1 py-3 text-xs font-bold text-[#8696a0] border-b-2 border-transparent transition";
+            document.getElementById('navThematicBtn').className = "flex-1 py-3 text-xs font-bold text-[#8696a0] border-b-2 border-transparent transition";
+            document.getElementById('navFriendsBtn').className = "flex-1 py-3 text-xs font-bold text-[#8696a0] border-b-2 border-transparent transition";
+
+            if(tab === 'chats') {
+                document.getElementById('tabChatsContent').classList.remove('hidden');
+                document.getElementById('navChatsBtn').className = "flex-1 py-3 text-xs font-bold border-b-2 border-[#00a884] text-[#00a884] transition";
+            } else if(tab === 'thematic') {
+                document.getElementById('tabThematicContent').classList.remove('hidden');
+                document.getElementById('navThematicBtn').className = "flex-1 py-3 text-xs font-bold border-b-2 border-[#00a884] text-[#00a884] transition";
+                loadThematicGroups();
+            } else if(tab === 'friends') {
+                document.getElementById('tabFriendsContent').classList.remove('hidden');
+                document.getElementById('navFriendsBtn').className = "flex-1 py-3 text-xs font-bold border-b-2 border-[#00a884] text-[#00a884] transition";
+                loadFriendsAndRequests();
+            }
+        }
+
+        function loadUserDataLists() {
+            const safeKey = currentUser.username.replace(/[@.#$\/\[\]]/g, '_');
+            
+            db.ref('nicknames/' + safeKey).on('value', snapshot => {
+                nicknamesObj = snapshot.val() || {};
+                renderChatsList();
+                loadFriendsAndRequests();
+            });
+
+            db.ref('user_chats/' + safeKey).on('value', snapshot => {
+                activeDirectChatsObj = {};
+                if(snapshot.exists()) {
+                    snapshot.forEach(child => {
+                        activeDirectChatsObj[child.key] = child.val();
+                    });
+                }
+                renderChatsList();
+            });
+
+            db.ref('friends/' + safeKey).on('value', snapshot => {
+                friendsListObj = {};
+                if(snapshot.exists()) {
+                    snapshot.forEach(child => {
+                        friendsListObj[child.key] = child.val();
+                    });
+                }
+                loadFriendsAndRequests();
+                renderChatsList();
+            });
+
+            db.ref('friend_requests/' + safeKey).on('value', snapshot => {
+                renderFriendRequests(snapshot);
+            });
+
+            db.ref('groups').on('value', () => {
+                renderChatsList();
+            });
+
+            setupUnreadListeners();
+        }
+
+        function loadFriendsAndRequests() {
+            const reqContainer = document.getElementById('friendRequestsList');
+            const friendsContainer = document.getElementById('friendsList');
+            reqContainer.innerHTML = '';
+            friendsContainer.innerHTML = '';
+
+            const safeKey = currentUser.username.replace(/[@.#$\/\[\]]/g, '_');
+
+            db.ref('friend_requests/' + safeKey).once('value', snapshot => {
+                if(snapshot.exists()) {
+                    snapshot.forEach(child => {
+                        const senderUser = child.val().sender;
+                        const senderSafe = child.key;
+                        reqContainer.innerHTML += `
+                            <div class="flex items-center justify-between p-2 rounded bg-[#202c33] text-xs">
+                                <span>${senderUser}</span>
+                                <div class="flex gap-1">
+                                    <button onclick="acceptRequest('${senderSafe}', '${senderUser}')" class="bg-emerald-600 px-2 py-1 rounded text-white font-bold"><i class="fa-solid fa-check"></i></button>
+                                    <button onclick="rejectRequest('${senderSafe}')" class="bg-red-600 px-2 py-1 rounded text-white font-bold"><i class="fa-solid fa-xmark"></i></button>
+                                </div>
+                            </div>
+                        `;
+                    });
+                } else {
+                    reqContainer.innerHTML = `<p class="text-[11px] text-[#8696a0] px-2">No hay solicitudes</p>`;
+                }
+            });
+
+            for(let fKey in friendsListObj) {
+                const fUser = friendsListObj[fKey].username;
+                const customNick = nicknamesObj[fKey];
+                const displayName = customNick ? `${customNick} (${fUser})` : fUser;
+                const u1 = safeKey;
+                const u2 = fKey;
+                const chatId = u1 < u2 ? `${u1}_${u2}` : `${u2}_${u1}`;
+
+                friendsContainer.innerHTML += `
+                    <div class="flex items-center justify-between p-2 rounded hover:bg-[#202c33] transition">
+                        <div class="flex items-center gap-2">
+                            <div class="w-8 h-8 rounded-full bg-[#2a3942] flex items-center justify-center text-xs"><i class="fa-solid fa-user"></i></div>
+                            <div>
+                                <div class="font-bold text-xs text-[#e9edef]">${displayName}</div>
+                                <div class="text-[10px] text-emerald-400 font-bold">Amigo</div>
+                            </div>
+                        </div>
+                        <button onclick="openChat('direct', '${fUser}', '${fUser}', '${chatId}')" class="text-[10px] bg-[#00a884] text-white px-2.5 py-1 rounded font-bold">Chatear</button>
+                    </div>
+                `;
+            }
+        }
+
+        function sendFriendRequest() {
+            let target = document.getElementById('friendUser').value.trim();
+            if(!target) return;
+            if(!target.startsWith('@')) target = '@' + target;
+            if(target === currentUser.username) return alert('No puedes enviarte solicitud a ti mismo');
+
+            const targetSafe = target.replace(/[@.#$\/\[\]]/g, '_');
+            const mySafe = currentUser.username.replace(/[@.#$\/\[\]]/g, '_');
+
+            db.ref(`friend_requests/${targetSafe}/${mySafe}`).set({
+                sender: currentUser.username,
+                timestamp: Date.now()
+            }).then(() => {
+                closeModal('addFriendModal');
+                alert('Solicitud de amistad enviada');
+            });
+        }
+
+        function acceptRequest(senderSafe, senderUser) {
+            const mySafe = currentUser.username.replace(/[@.#$\/\[\]]/g, '_');
+            db.ref(`friends/${mySafe}/${senderSafe}`).set({ username: senderUser });
+            db.ref(`friends/${senderSafe}/${mySafe}`).set({ username: currentUser.username });
+
+            db.ref(`friend_requests/${mySafe}/${senderSafe}`).remove().then(() => {
+                loadUserDataLists();
+                alert('¡Ahora sois amigos!');
+            });
+        }
+
+        function rejectRequest(senderSafe) {
+            const mySafe = currentUser.username.replace(/[@.#$\/\[\]]/g, '_');
+            db.ref(`friend_requests/${mySafe}/${senderSafe}`).remove().then(() => {
+                loadUserDataLists();
+            });
+        }
+
+        function setupUnreadListeners() {
+            db.ref('global_chat/messages').on('value', snapshot => {
+                updateUnreadCountForChat('global_chat', snapshot);
+            });
+            db.ref('group_messages').on('value', snapshot => {
+                if(snapshot.exists()) {
+                    snapshot.forEach(groupSnap => {
+                        updateUnreadCountForChat(groupSnap.key, groupSnap);
+                    });
+                }
+            });
+            db.ref('thematic_groups_messages').on('value', snapshot => {
+                if(snapshot.exists()) {
+                    snapshot.forEach(themeSnap => {
+                        updateUnreadCountForChat(themeSnap.key, themeSnap);
+                    });
+                }
+            });
+            db.ref('direct_messages').on('value', snapshot => {
+                if(snapshot.exists()) {
+                    snapshot.forEach(chatSnap => {
+                        updateUnreadCountForChat(chatSnap.key, chatSnap);
+                    });
+                }
+            });
+        }
+
+        function updateUnreadCountForChat(chatId, snapshot) {
+            const safeKey = currentUser.username.replace(/[@.#$\/\[\]]/g, '_');
+            db.ref(`last_read/${safeKey}/${chatId}`).once('value', lastReadSnap => {
+                const lastRead = lastReadSnap.val() || 0;
+                let count = 0;
+                if(snapshot.exists()) {
+                    snapshot.forEach(msgSnap => {
+                        const msg = msgSnap.val();
+                        if(msg.timestamp > lastRead && msg.sender !== currentUser.username) {
+                            count++;
+                        }
+                    });
+                }
+                unreadCounts[chatId] = count;
+                renderChatsList();
+            });
+        }
+
+        function renderChatsList() {
+            const container = document.getElementById('chatsList');
+            container.innerHTML = '';
+            const safeKey = currentUser.username.replace(/[@.#$\/\[\]]/g, '_');
+
+            // Chat Global
+            const globalUnread = unreadCounts['global_chat'] || 0;
+            const globalNick = nicknamesObj['global_chat'];
+            const globalTitle = globalNick ? `${globalNick} (Chat Global)` : 'Chat Global';
+            container.innerHTML += `
+                <div onclick="openChat('global', 'Chat Global', 'Público general', 'global_chat')" class="flex items-center justify-between p-2.5 rounded-lg hover:bg-[#202c33] cursor-pointer transition">
+                    <div class="flex items-center gap-3">
+                        <div class="w-11 h-11 rounded-full bg-[#00a884]/20 text-[#00a884] flex items-center justify-center font-bold text-lg"><i class="fa-solid fa-globe"></i></div>
+                        <div>
+                            <div class="font-bold text-sm text-[#e9edef]">${globalTitle}</div>
+                            <div class="text-xs text-[#8696a0]">Público general</div>
+                        </div>
+                    </div>
+                    ${globalUnread > 0 ? `<span class="bg-[#00a884] text-white text-xs px-2 py-0.5 rounded-full font-bold">${globalUnread}</span>` : ''}
+                </div>
+            `;
+
+            // Grupos personalizados
+            db.ref('groups').once('value', snapshot => {
+                if(snapshot.exists()) {
+                    snapshot.forEach(child => {
+                        const group = child.val();
+                        const gId = child.key;
+                        if(group.members && group.members[safeKey]) {
+                            const unread = unreadCounts[gId] || 0;
+                            const groupNick = nicknamesObj[gId];
+                            const groupTitle = groupNick ? `${groupNick} (${group.name})` : group.name;
+                            container.innerHTML += `
+                                <div onclick="openChat('group', '${group.name}', 'Grupo', '${gId}')" class="flex items-center justify-between p-2.5 rounded-lg hover:bg-[#202c33] cursor-pointer transition">
+                                    <div class="flex items-center gap-3">
+                                        <div class="w-11 h-11 rounded-full bg-[#202c33] text-[#00a884] flex items-center justify-center font-bold text-lg">${group.icon || '👥'}</div>
+                                        <div>
+                                            <div class="font-bold text-sm text-[#e9edef]">${groupTitle}</div>
+                                            <div class="text-xs text-[#8696a0]">Grupo</div>
+                                        </div>
+                                    </div>
+                                    ${unread > 0 ? `<span class="bg-[#00a884] text-white text-xs px-2 py-0.5 rounded-full font-bold">${unread}</span>` : ''}
+                                </div>
+                            `;
+                        }
+                    });
+                }
+            });
+
+            // Chats directos activos (con amigos o no amigos)
+            for(let chatId in activeDirectChatsObj) {
+                const chatData = activeDirectChatsObj[chatId];
+                const partnerUser = chatData.partnerUsername;
+                const partnerSafe = chatData.partnerSafe;
+                const customNick = nicknamesObj[partnerSafe];
+                const isFriend = friendsListObj[partnerSafe] !== undefined;
+                const unread = unreadCounts[chatId] || 0;
+
+                const displayName = customNick ? `${customNick} (${partnerUser})` : partnerUser;
+                const friendBadge = isFriend 
+                    ? `<span class="text-[10px] bg-emerald-500/20 text-emerald-400 px-1.5 py-0.5 rounded font-bold">Amigo</span>` 
+                    : `<span class="text-[10px] bg-[#2a3942] text-[#8696a0] px-1.5 py-0.5 rounded font-bold">No amigo</span>`;
+
+                container.innerHTML += `
+                    <div onclick="openChat('direct', '${partnerUser}', '${partnerUser}', '${chatId}')" class="flex items-center justify-between p-2.5 rounded-lg hover:bg-[#202c33] cursor-pointer transition">
+                        <div class="flex items-center gap-3">
+                            <div class="w-11 h-11 rounded-full bg-[#2a3942] text-[#8696a0] flex items-center justify-center font-bold text-lg"><i class="fa-solid fa-user"></i></div>
+                            <div>
+                                <div class="font-bold text-sm text-[#e9edef]">${displayName}</div>
+                                <div class="flex items-center gap-2 mt-0.5">
+                                    <span class="text-xs text-[#8696a0]">Chat directo</span>
+                                    ${friendBadge}
+                                </div>
+                            </div>
+                        </div>
+                        ${unread > 0 ? `<span class="bg-[#00a884] text-white text-xs px-2 py-0.5 rounded-full font-bold">${unread}</span>` : ''}
+                    </div>
+                `;
+            }
+        }
+
+        function loadThematicGroups() {
+            const container = document.getElementById('thematicList');
+            container.innerHTML = '';
+            db.ref('thematic_groups').on('value', snapshot => {
+                container.innerHTML = '';
+                if(snapshot.exists()) {
+                    snapshot.forEach(child => {
+                        const group = child.val();
+                        const gId = child.key;
+                        const unread = unreadCounts[gId] || 0;
+                        const themeNick = nicknamesObj[gId];
+                        const themeTitle = themeNick ? `${themeNick} (${group.name})` : group.name;
+                        container.innerHTML += `
+                            <div onclick="openChat('thematic', '${group.name}', 'Temático', '${gId}')" class="flex items-center justify-between p-2.5 rounded-lg hover:bg-[#202c33] cursor-pointer transition">
+                                <div class="flex items-center gap-3">
+                                    <div class="w-11 h-11 rounded-full bg-indigo-600/20 text-indigo-400 flex items-center justify-center font-bold text-lg">${group.icon || '📚'}</div>
+                                    <div>
+                                        <div class="font-bold text-sm text-[#e9edef]">${themeTitle}</div>
+                                        <div class="text-xs text-[#8696a0]">Temático</div>
+                                    </div>
+                                </div>
+                                ${unread > 0 ? `<span class="bg-[#00a884] text-white text-xs px-2 py-0.5 rounded-full font-bold">${unread}</span>` : ''}
+                            </div>
+                        `;
+                    });
+                }
+            });
+        }
+
+        // ABRIR CHAT
+        let currentMsgRef = null;
+        function openChat(type, name, sub, extraId) {
+            currentActiveChat = { type, name, sub, extraId };
+
+            let displayTitle = name;
+            let targetKey = extraId;
+            if(type === 'direct') {
+                const u1 = currentUser.username.replace(/[@.#$\/\[\]]/g, '_');
+                const u2Parts = extraId.split('_');
+                const partnerSafe = u2Parts[0] === u1 ? u2Parts[1] : u2Parts[0];
+                currentActiveChat.partnerSafe = partnerSafe;
+                currentActiveChat.sub = name;
+                targetKey = partnerSafe;
+                const customNick = nicknamesObj[partnerSafe];
+                if(customNick) displayTitle = `${customNick} (${name})`;
+            } else {
+                const customNick = nicknamesObj[extraId];
+                if(customNick) displayTitle = `${customNick} (${name})`;
+            }
+
+            const isFriendDirect = type === 'direct' ? (friendsListObj[currentActiveChat.partnerSafe] !== undefined ? 'Amigo' : 'No amigo') : sub;
+
+            document.getElementById('activeChatTitle').innerText = displayTitle;
+            document.getElementById('activeChatSub').innerText = `${name} • ${isFriendDirect} (Clic para ver perfil y apodos)`;
+            document.getElementById('chatInputArea').classList.remove('hidden');
+
+            const avatarEl = document.getElementById('activeChatAvatar');
+            if(type === 'global') avatarEl.innerHTML = '<i class="fa-solid fa-globe"></i>';
+            else if(type === 'group') {
+                db.ref('groups/' + extraId).once('value', s => { avatarEl.innerHTML = s.val()?.icon || '<i class="fa-solid fa-users"></i>'; });
+            } else if(type === 'thematic') {
+                db.ref('thematic_groups/' + extraId).once('value', s => { avatarEl.innerHTML = s.val()?.icon || '<i class="fa-solid fa-book-open"></i>'; });
+            } else avatarEl.innerHTML = '<i class="fa-solid fa-user"></i>';
+
+            const actionsEl = document.getElementById('activeChatActions');
+            actionsEl.innerHTML = '';
+            if(type === 'group') {
+                db.ref('groups/' + extraId).once('value', snapshot => {
+                    const gData = snapshot.val();
+                    if(gData && gData.admin === currentUser.username) {
+                        actionsEl.innerHTML = `<button onclick="openGroupAdminModal('${extraId}')" class="bg-[#2a3942] hover:bg-[#374248] text-[#e9edef] px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1.5"><i class="fa-solid fa-gear"></i> Admin</button>`;
+                    }
+                });
+            }
+
+            const safeKey = currentUser.username.replace(/[@.#$\/\[\]]/g, '_');
+            db.ref(`last_read/${safeKey}/${extraId}`).set(Date.now());
+            unreadCounts[extraId] = 0;
+            renderChatsList();
+
+            if(currentMsgRef) currentMsgRef.off();
+
+            if(type === 'global') currentMsgRef = db.ref('global_chat/messages');
+            else if(type === 'thematic') currentMsgRef = db.ref('thematic_groups_messages/' + extraId);
+            else if(type === 'group') currentMsgRef = db.ref('group_messages/' + extraId);
+            else if(type === 'direct') {
+                currentMsgRef = db.ref('direct_messages/' + extraId);
+                ensureDirectChatActive();
+            }
+
+            currentMsgRef.on('value', snapshot => {
+                const container = document.getElementById('messagesContainer');
+                container.innerHTML = '';
+                if(snapshot.exists()) {
+                    snapshot.forEach(child => {
+                        const msgKey = child.key;
+                        const msg = child.val();
+                        db.ref(`deleted_for_me/${safeKey}/${extraId}/${msgKey}`).once('value', delSnap => {
+                            if(!delSnap.exists()) {
+                                appendMessageUI(msg, msgKey);
+                            }
+                        });
+                    });
+                } else {
+                    container.innerHTML = `<div class="m-auto text-center text-[#8696a0]"><p class="text-sm">Envía el primer mensaje...</p></div>`;
+                }
+                container.scrollTop = container.scrollHeight;
+            });
+        }
+
+        function ensureDirectChatActive() {
+            if(!currentActiveChat || currentActiveChat.type !== 'direct') return;
+            const chatId = currentActiveChat.extraId;
+            const u1 = currentUser.username.replace(/[@.#$\/\[\]]/g, '_');
+            const partnerSafe = currentActiveChat.partnerSafe;
+            const partnerUser = currentActiveChat.sub;
+
+            if(partnerSafe && partnerUser) {
+                db.ref(`user_chats/${u1}/${chatId}`).set({ partnerUsername: partnerUser, partnerSafe: partnerSafe });
+                db.ref(`user_chats/${partnerSafe}/${chatId}`).set({ partnerUsername: currentUser.username, partnerSafe: u1 });
+            }
+        }
+
+        // PERFIL CON ESTADO DE AMISTAD Y APODOS
+        function openActiveChatProfile() {
+            if(!currentActiveChat) return;
+            const modalTitle = document.getElementById('profileModalTitle');
+            const modalContent = document.getElementById('profileModalContent');
+            modalContent.innerHTML = '';
+
+            let targetKey = currentActiveChat.extraId;
+            if(currentActiveChat.type === 'direct') targetKey = currentActiveChat.partnerSafe;
+
+            const currentNick = nicknamesObj[targetKey] || '';
+
+            if(currentActiveChat.type === 'global') {
+                modalTitle.innerText = "Perfil: Chat Global";
+                modalContent.innerHTML = `
+                    <div class="text-center py-2 space-y-3">
+                        <div class="text-5xl">🌍</div>
+                        <h3 class="font-bold text-lg">Chat Global General</h3>
+                        <div class="text-left">
+                            <label class="block text-xs font-bold text-[#8696a0] mb-1">Apodo Personalizado</label>
+                            <input type="text" id="customNickInput" value="${currentNick}" placeholder="Apodo..." class="w-full bg-[#2a3942] text-[#e9edef] rounded px-3 py-2 text-sm mb-2">
+                            <button onclick="saveCustomNickname('${targetKey}')" class="w-full bg-[#00a884] text-white py-2 rounded text-xs font-bold">Guardar Apodo</button>
+                        </div>
+                    </div>
+                `;
+            } else if(currentActiveChat.type === 'direct') {
+                const username = currentActiveChat.sub;
+                const partnerSafe = currentActiveChat.partnerSafe;
+                const isFriend = friendsListObj[partnerSafe] !== undefined;
+
+                db.ref('users/' + partnerSafe).once('value', snapshot => {
+                    const uData = snapshot.val() || {};
+                    modalTitle.innerText = "Perfil de Usuario";
+                    modalContent.innerHTML = `
+                        <div class="text-center py-2 space-y-3">
+                            <div class="w-20 h-20 rounded-full bg-[#2a3942] mx-auto flex items-center justify-center text-3xl overflow-hidden">
+                                ${uData.profilePic?.startsWith('data:image') ? `<img src="${uData.profilePic}" class="w-full h-full object-cover">` : (uData.profilePic || '👤')}
+                            </div>
+                            <h3 class="font-bold text-lg">${username}</h3>
+                            <div class="flex justify-center items-center gap-2">
+                                <span class="text-xs text-[#00a884] font-mono">${username}</span>
+                                ${isFriend ? '<span class="text-xs bg-emerald-500/20 text-emerald-400 px-2.5 py-0.5 rounded font-bold">Amigo</span>' : '<span class="text-xs bg-[#2a3942] text-[#8696a0] px-2.5 py-0.5 rounded font-bold">No amigo</span>'}
+                            </div>
+                            <div class="text-left pt-2 border-t border-[#222d34]">
+                                <label class="block text-xs font-bold text-[#8696a0] mb-1">Apodo Personalizado</label>
+                                <input type="text" id="customNickInput" value="${currentNick}" placeholder="Pon un apodo..." class="w-full bg-[#2a3942] text-[#e9edef] rounded px-3 py-2 text-sm mb-2">
+                                <button onclick="saveCustomNickname('${targetKey}')" class="w-full bg-[#00a884] text-white py-2 rounded text-xs font-bold">Guardar Apodo</button>
+                            </div>
+                        </div>`;
+                });
+            } else if(currentActiveChat.type === 'group' || currentActiveChat.type === 'thematic') {
+                const dbPath = currentActiveChat.type === 'group' ? 'groups/' : 'thematic_groups/';
+                db.ref(dbPath + currentActiveChat.extraId).once('value', snapshot => {
+                    const g = snapshot.val() || {};
+                    let membersList = '';
+                    if(g.members) for(let m in g.members) membersList += `<span class="bg-[#2a3942] px-2 py-1 rounded text-xs">@${m}</span> `;
+                    modalTitle.innerText = "Perfil del Grupo";
+                    modalContent.innerHTML = `
+                        <div class="text-center py-2 space-y-3">
+                            <div class="text-4xl">${g.icon || '👥'}</div>
+                            <h3 class="font-bold text-lg">${g.name}</h3>
+                            <p class="text-xs text-[#8696a0]">${g.description || 'Sin descripción'}</p>
+                            <div class="text-left">
+                                <label class="block text-xs font-bold text-[#8696a0] mb-1">Apodo Personalizado para el Grupo</label>
+                                <input type="text" id="customNickInput" value="${currentNick}" placeholder="Pon un apodo..." class="w-full bg-[#2a3942] text-[#e9edef] rounded px-3 py-2 text-sm mb-2">
+                                <button onclick="saveCustomNickname('${targetKey}')" class="w-full bg-[#00a884] text-white py-2 rounded text-xs font-bold">Guardar Apodo</button>
+                            </div>
+                            ${membersList ? `<div class="text-left"><label class="block text-xs font-bold text-[#8696a0] mb-1">Miembros:</label><div class="flex flex-wrap gap-1">${membersList}</div></div>` : ''}
+                        </div>`;
+                });
+            }
+            document.getElementById('profileModal').classList.remove('hidden');
+        }
+
+        function saveCustomNickname(targetKey) {
+            const nick = document.getElementById('customNickInput').value.trim();
+            const safeKey = currentUser.username.replace(/[@.#$\/\[\]]/g, '_');
+            
+            db.ref(`nicknames/${safeKey}/${targetKey}`).set(nick || null).then(() => {
+                closeModal('profileModal');
+                loadUserDataLists();
+                openChat(currentActiveChat.type, currentActiveChat.name, currentActiveChat.sub, currentActiveChat.extraId);
+                alert('Apodo guardado correctamente');
+            });
+        }
+
+        function sendMessage() {
+            const input = document.getElementById('messageInput');
+            const text = input.value.trim();
+            if(!text) return;
+
+            if(currentActiveChat.type === 'direct') {
+                ensureDirectChatActive();
+            }
+
+            currentMsgRef.push({ sender: currentUser.username, text: text, type: 'text', timestamp: Date.now() });
+            input.value = '';
+        }
+
+        function handleMsgKeyPress(e) { if(e.key === 'Enter') sendMessage(); }
+
+        function toggleMediaMenu() { document.getElementById('mediaMenu').classList.toggle('hidden'); }
+
+        function sendMediaFile(input, type) {
+            if(input.files && input.files[0]) {
+                const file = input.files[0];
+                const reader = new FileReader();
+                reader.onload = e => {
+                    if(currentActiveChat.type === 'direct') ensureDirectChatActive();
+                    currentMsgRef.push({ sender: currentUser.username, text: file.name, mediaUrl: e.target.result, type: type, timestamp: Date.now() });
+                    toggleMediaMenu();
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        function deleteMessageForMe(msgKey) {
+            const safeKey = currentUser.username.replace(/[@.#$\/\[\]]/g, '_');
+            db.ref(`deleted_for_me/${safeKey}/${currentActiveChat.extraId}/${msgKey}`).set(true).then(() => {
+                openChat(currentActiveChat.type, currentActiveChat.name, currentActiveChat.sub, currentActiveChat.extraId);
+            });
+        }
+
+        function deleteMessageForEveryone(msgKey) {
+            currentMsgRef.child(msgKey).remove().then(() => {
+                alert('Mensaje borrado para todos');
+            });
+        }
+
+        // AUDIO
+        function startAudioRecording() {
+            if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) return alert('No soporta audio');
+            navigator.mediaDevices.getUserMedia({ audio: true }).then(stream => {
+                mediaRecorder = new MediaRecorder(stream);
+                audioChunks = [];
+                audioSeconds = 0;
+                document.getElementById('messageInput').classList.add('hidden');
+                document.getElementById('audioRecordingUI').classList.remove('hidden');
+                document.getElementById('audioRecordingUI').classList.add('flex');
+                document.getElementById('sendBtn').classList.add('hidden');
+                document.getElementById('micBtn').classList.add('hidden');
+
+                audioTimerInterval = setInterval(() => {
+                    audioSeconds++;
+                    let m = Math.floor(audioSeconds / 60), s = audioSeconds % 60;
+                    document.getElementById('audioTimer').innerText = `${m}:${s < 10 ? '0' : ''}${s}`;
+                }, 1000);
+
+                mediaRecorder.ondataavailable = e => audioChunks.push(e.data);
+                mediaRecorder.start();
+            }).catch(() => alert('Permiso de micrófono denegado'));
+        }
+
+        function cancelAudioRecording() {
+            if(mediaRecorder) { mediaRecorder.stop(); mediaRecorder.stream.getTracks().forEach(t => t.stop()); }
+            clearInterval(audioTimerInterval);
+            resetAudioUI();
+        }
+
+        function stopAndSendAudio() {
+            if(mediaRecorder) {
+                mediaRecorder.onstop = () => {
+                    const blob = new Blob(audioChunks, { type: 'audio/mp3' });
+                    const reader = new FileReader();
+                    reader.onload = e => {
+                        if(currentActiveChat.type === 'direct') ensureDirectChatActive();
+                        currentMsgRef.push({ sender: currentUser.username, text: 'Nota de voz', mediaUrl: e.target.result, type: 'audio', timestamp: Date.now() });
+                    };
+                    reader.readAsDataURL(blob);
+                    mediaRecorder.stream.getTracks().forEach(t => t.stop());
+                };
+                mediaRecorder.stop();
+            }
+            clearInterval(audioTimerInterval);
+            resetAudioUI();
+        }
+
+        function resetAudioUI() {
+            document.getElementById('messageInput').classList.remove('hidden');
+            document.getElementById('audioRecordingUI').classList.add('hidden');
+            document.getElementById('audioRecordingUI').classList.remove('flex');
+            document.getElementById('sendBtn').classList.remove('hidden');
+            document.getElementById('micBtn').classList.remove('hidden');
+        }
+
+        function appendMessageUI(msg, msgKey) {
+            const container = document.getElementById('messagesContainer');
+            const isMe = msg.sender === currentUser.username;
+            let contentHTML = '';
+            if(msg.type === 'text') contentHTML = `<p class="text-sm leading-relaxed">${escapeHtml(msg.text)}</p>`;
+            else if(msg.type === 'media') contentHTML = msg.mediaUrl.includes('video') ? `<video src="${msg.mediaUrl}" controls class="max-w-xs rounded-lg mb-1"></video>` : `<img src="${msg.mediaUrl}" class="max-w-xs rounded-lg mb-1 cursor-pointer" onclick="window.open('${msg.mediaUrl}')">`;
+            else if(msg.type === 'audio') contentHTML = `<audio src="${msg.mediaUrl}" controls class="max-w-xs"></audio>`;
+            else if(msg.type === 'file') contentHTML = `<a href="${msg.mediaUrl}" download="${msg.text}" class="flex items-center gap-2 text-blue-400 underline text-sm"><i class="fa-solid fa-file-arrow-down"></i> ${escapeHtml(msg.text)}</a>`;
+
+            const bubbleBg = isMe ? 'bg-[#005c4b] text-[#e9edef]' : 'bg-[#202c33] text-[#e9edef]';
+            const align = isMe ? 'ml-auto' : 'mr-auto';
+            const timeStr = new Date(msg.timestamp || Date.now()).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+
+            container.innerHTML += `
+                <div class="flex flex-col ${isMe ? 'items-end' : 'items-start'} max-w-[70%] ${align}">
+                    <span class="text-[10px] text-[#8696a0] mb-0.5 px-1">${msg.sender}</span>
+                    <div class="${bubbleBg} p-2.5 rounded-lg shadow relative flex flex-col message-bubble group">
+                        ${contentHTML}
+                        <div class="flex items-center justify-end gap-2 mt-1">
+                            <span class="text-[9px] text-[#8696a0]">${timeStr}</span>
+                            <div class="msg-options gap-1 text-xs">
+                                <button onclick="deleteMessageForMe('${msgKey}')" title="Borrar para mí" class="text-amber-400 hover:text-amber-300"><i class="fa-solid fa-trash-can"></i></button>
+                                ${isMe ? `<button onclick="deleteMessageForEveryone('${msgKey}')" title="Borrar para todos" class="text-red-400 hover:text-red-300"><i class="fa-solid fa-ban"></i></button>` : ''}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            container.scrollTop = container.scrollHeight;
+        }
+
+        // EMOJIS (z-60)
+        function openEmojiPickerForReg() { emojiTargetMode = 'register'; showEmojiPickerModal(); }
+        function openEmojiPickerForConfig() { emojiTargetMode = 'config'; showEmojiPickerModal(); }
+        function openEmojiPickerForGroup() { emojiTargetMode = 'groupIcon'; showEmojiPickerModal(); }
+        function openEmojiPickerForThematic() { emojiTargetMode = 'thematicIcon'; showEmojiPickerModal(); }
+        function openEmojiPickerForAdminGroup() { emojiTargetMode = 'adminGroupIcon'; showEmojiPickerModal(); }
+        function openChatEmojiPicker() { emojiTargetMode = 'chat'; showEmojiPickerModal(); }
+
+        function showEmojiPickerModal() {
+            const grid = document.getElementById('emojiGridContainer');
+            grid.innerHTML = '';
+            ALL_EMOJIS.forEach(emoji => {
+                const span = document.createElement('span');
+                span.innerText = emoji;
+                span.className = "cursor-pointer hover:bg-[#2a3942] p-2 rounded text-center transition select-none flex items-center justify-center";
+                span.onclick = () => selectModalEmoji(emoji);
+                grid.appendChild(span);
+            });
+            document.getElementById('emojiPickerModal').classList.remove('hidden');
+        }
+
+        function closeEmojiPickerModal() {
+            document.getElementById('emojiPickerModal').classList.add('hidden');
+        }
+
+        function selectModalEmoji(emoji) {
+            if(emojiTargetMode === 'register') {
+                currentRegPic = emoji;
+                document.getElementById('regSelectedEmojiDisplay').innerText = emoji;
+            } else if(emojiTargetMode === 'config') {
+                currentUser.profilePic = emoji;
+                renderMyAvatar();
+                db.ref('users/' + currentUser.username.replace(/[@.#$\/\[\]]/g, '_') + '/profilePic').set(emoji);
+            } else if(emojiTargetMode === 'groupIcon') {
+                currentGroupIcon = emoji;
+                document.getElementById('groupSelectedEmojiDisplay').innerText = emoji;
+            } else if(emojiTargetMode === 'thematicIcon') {
+                currentThematicIcon = emoji;
+                document.getElementById('thematicSelectedEmojiDisplay').innerText = emoji;
+            } else if(emojiTargetMode === 'adminGroupIcon') {
+                currentAdminGroupIcon = emoji;
+                document.getElementById('adminGroupIconDisplay').innerText = emoji;
+            } else if(emojiTargetMode === 'chat') {
+                const input = document.getElementById('messageInput');
+                input.value += emoji;
+                input.focus();
+            }
+            closeEmojiPickerModal();
+        }
+
+        // MODALES
+        function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
+        function openNewChatModal() { document.getElementById('newChatModal').classList.remove('hidden'); }
+        function openNewGroupModal() { document.getElementById('newGroupModal').classList.remove('hidden'); }
+        function openNewThematicModal() { document.getElementById('newThematicModal').classList.remove('hidden'); }
+        function openAddFriendModal() { document.getElementById('addFriendModal').classList.remove('hidden'); }
+        function openConfig() { document.getElementById('configModal').classList.remove('hidden'); }
+        function closeConfig() { document.getElementById('configModal').classList.add('hidden'); }
+
+        function startDirectChat() {
+            let target = document.getElementById('targetChatUser').value.trim();
+            if(!target) return;
+            if(!target.startsWith('@')) target = '@' + target;
+            closeModal('newChatModal');
+
+            const targetSafe = target.replace(/[@.#$\/\[\]]/g, '_');
+            const u1 = currentUser.username.replace(/[@.#$\/\[\]]/g, '_');
+            const u2 = targetSafe;
+            const chatId = u1 < u2 ? `${u1}_${u2}` : `${u2}_${u1}`;
+
+            db.ref(`user_chats/${u1}/${chatId}`).set({ partnerUsername: target, partnerSafe: u2 });
+            db.ref(`user_chats/${u2}/${chatId}`).set({ partnerUsername: currentUser.username, partnerSafe: u1 });
+
+            openChat('direct', target, target, chatId);
+        }
+
+        function createCustomGroup() {
+            const name = document.getElementById('newGroupName').value.trim();
+            const desc = document.getElementById('newGroupDesc').value.trim();
+            const membersStr = document.getElementById('newGroupMembers').value.trim();
+            if(!name) return alert('Escribe un nombre');
+
+            let membersObj = {};
+            membersObj[currentUser.username.replace(/[@.#$\/\[\]]/g, '_')] = true;
+            if(membersStr) {
+                membersStr.split(',').forEach(m => {
+                    let clean = m.trim();
+                    if(clean) {
+                        if(!clean.startsWith('@')) clean = '@' + clean;
+                        membersObj[clean.replace(/[@.#$\/\[\]]/g, '_')] = true;
+                    }
+                });
+            }
+
+            db.ref('groups').push().set({ name, description: desc, icon: currentGroupIcon, admin: currentUser.username, members: membersObj, createdAt: Date.now() }).then(() => {
+                closeModal('newGroupModal');
+                alert('Grupo creado');
+            });
+        }
+
+        function createThematicGroup() {
+            if(currentUser.username !== '@ssaauull123') return alert('Solo @ssaauull123 puede crear grupos temáticos');
+            const name = document.getElementById('newThematicName').value.trim();
+            const desc = document.getElementById('newThematicDesc').value.trim();
+            if(!name) return;
+
+            db.ref('thematic_groups').push().set({ name, description: desc, icon: currentThematicIcon, creator: '@ssaauull123', createdAt: Date.now() }).then(() => {
+                closeModal('newThematicModal');
+                alert('Tema creado');
+            });
+        }
+
+        let currentAdminGroupId = null;
+        function openGroupAdminModal(groupId) {
+            currentAdminGroupId = groupId;
+            db.ref('groups/' + groupId).once('value', snapshot => {
+                const g = snapshot.val();
+                document.getElementById('adminGroupName').value = g.name;
+                document.getElementById('adminGroupDesc').value = g.description || '';
+                currentAdminGroupIcon = g.icon || '👥';
+                document.getElementById('adminGroupIconDisplay').innerText = currentAdminGroupIcon;
+
+                const membersContainer = document.getElementById('adminMembersListContainer');
+                membersContainer.innerHTML = '';
+                if(g.members) {
+                    for(let m in g.members) {
+                        membersContainer.innerHTML += `
+                            <div class="flex items-center justify-between text-xs">
+                                <span>@${m}</span>
+                                ${m !== currentUser.username.replace(/[@.#$\/\[\]]/g, '_') ? `<button onclick="groupAdminRemoveUser('${m}')" class="text-red-400 hover:text-red-300"><i class="fa-solid fa-user-minus"></i> Expulsar</button>` : '<span class="text-emerald-400">Admin</span>'}
+                            </div>
+                        `;
+                    }
+                }
+                document.getElementById('groupAdminModal').classList.remove('hidden');
+            });
+        }
+
+        function groupAdminAddUser() {
+            let u = document.getElementById('adminAddMemberInput').value.trim();
+            if(!u) return;
+            if(!u.startsWith('@')) u = '@' + u;
+            const safeU = u.replace(/[@.#$\/\[\]]/g, '_');
+            db.ref(`groups/${currentAdminGroupId}/members/${safeU}`).set(true).then(() => {
+                document.getElementById('adminAddMemberInput').value = '';
+                openGroupAdminModal(currentAdminGroupId);
+                alert('Miembro añadido');
+            });
+        }
+
+        function groupAdminRemoveUser(memberKey) {
+            db.ref(`groups/${currentAdminGroupId}/members/${memberKey}`).remove().then(() => {
+                openGroupAdminModal(currentAdminGroupId);
+                alert('Miembro expulsado');
+            });
+        }
+
+        function saveGroupAdminChanges() {
+            const name = document.getElementById('adminGroupName').value.trim();
+            const desc = document.getElementById('adminGroupDesc').value.trim();
+            if(name) {
+                db.ref(`groups/${currentAdminGroupId}`).update({
+                    name: name,
+                    description: desc,
+                    icon: currentAdminGroupIcon
+                }).then(() => {
+                    closeModal('groupAdminModal');
+                    alert('Grupo actualizado con éxito');
+                });
+            }
+        }
+
+        function saveThemeConfig() {
+            const bgColor = document.getElementById('confBgColor').value;
+            const chatColor = document.getElementById('confChatColor').value;
+            const textColor = document.getElementById('confTextColor').value;
+            const font = document.getElementById('confFontType').value;
+
+            currentUser.theme = { bgColor, chatColor, textColor, font, bgImage: currentUser.theme.bgImage || '' };
+            applyTheme(currentUser.theme);
+            db.ref('users/' + currentUser.username.replace(/[@.#$\/\[\]]/g, '_') + '/theme').set(currentUser.theme).then(() => {
+                closeConfig();
+                alert('Tema guardado');
+            });
+        }
+
+        function applyTheme(theme) {
+            const body = document.getElementById('appBody');
+            body.className = `h-screen flex flex-col overflow-hidden ${theme.font || 'custom-font-sans'}`;
+            body.style.backgroundColor = theme.bgColor;
+            body.style.color = theme.textColor;
+        }
+
+        function escapeHtml(text) {
+            const map = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' };
+            return text.replace(/[&<>"']/g, m => map[m]);
+        }
+    </script>
+</body>
+</html>
