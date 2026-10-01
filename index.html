@@ -3,8 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Chat
-</title>
+    <title>Chat Cole - WhatsApp Pro Ultimate</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- FontAwesome Icons -->
@@ -18,25 +17,47 @@
         .custom-font-mono { font-family: 'Courier New', monospace; }
         .custom-font-comic { font-family: 'Comic Sans MS', cursive, sans-serif; }
         .whatsapp-bg {
-            background-color: #0b141a;
             background-image: radial-gradient(circle, rgba(255,255,255,0.03) 1px, transparent 1px);
             background-size: 20px 20px;
         }
         .msg-options { display: none; }
         .message-bubble:hover .msg-options { display: flex; }
+        /* Estilo minimalista para las bolitas de color */
+        input[type="color"] {
+            -webkit-appearance: none;
+            border: none;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            cursor: pointer;
+            outline: none;
+            padding: 0;
+        }
+        input[type="color"]::-webkit-color-swatch-wrapper { padding: 0; }
+        input[type="color"]::-webkit-color-swatch { border: 2px solid #2a3942; border-radius: 50%; }
+    </style>
+    <!-- ESTILOS DINÁMICOS DE TEMA -->
+    <style id="dynamicThemeStyle">
+        .theme-auth { background-color: #111b21; color: #e9edef; }
+        .theme-sidebar { background-color: #111b21; color: #e9edef; }
+        .theme-header { background-color: #202c33; color: #e9edef; }
+        .theme-tabs { background-color: #111b21; color: #e9edef; }
+        .theme-btn { background-color: #00a884; color: #ffffff; }
+        .theme-btn:hover { opacity: 0.9; }
+        .theme-bubble-sent { background-color: #005c4b; color: #e9edef; }
+        .theme-bubble-recv { background-color: #202c33; color: #e9edef; }
     </style>
 </head>
 <body class="bg-[#0b141a] text-[#e9edef] h-screen flex flex-col overflow-hidden custom-font-sans" id="appBody">
 
     <!-- PANTALLA DE AUTENTICACIÓN -->
-    <div id="authScreen" class="fixed inset-0 bg-[#111b21] z-50 flex items-center justify-center p-4">
-        <div class="bg-[#202c33] border border-[#222d34] rounded-xl w-full max-w-md p-8 shadow-2xl">
+    <div id="authScreen" class="fixed inset-0 theme-auth z-50 flex items-center justify-center p-4">
+        <div class="theme-header border border-[#222d34] rounded-2xl w-full max-w-md p-8 shadow-2xl">
             <div class="text-center mb-6">
-                <div class="w-16 h-16 bg-[#00a884] rounded-full flex items-center justify-center mx-auto mb-3 text-white text-3xl shadow-lg">
-                    <i class="fa-brands.whatsapp fa-brands fa-whatsapp"></i>
+                <div class="w-16 h-16 theme-btn rounded-full flex items-center justify-center mx-auto mb-3 text-3xl shadow-lg">
+                    <i class="fa-brands.whatsapp.fa-brands fa-whatsapp"></i>
                 </div>
-                <h1 class="text-2xl font-bold text-[#e9edef]">Cole</h1>
-                <p class="text-[#8696a0] text-sm mt-1">Firebase Realtime Database</p>
+                <h1 class="text-2xl font-bold">Chat Cole</h1>
             </div>
 
             <!-- Tabs Auth -->
@@ -56,17 +77,17 @@
                     <label class="block text-xs uppercase font-bold text-[#8696a0] mb-1">Contraseña</label>
                     <input type="password" id="loginPass" placeholder="••••••••" class="w-full bg-[#2a3942] text-[#e9edef] border border-transparent rounded-lg px-4 py-3 focus:outline-none focus:border-[#00a884]">
                 </div>
-                <button onclick="handleLogin()" class="w-full bg-[#00a884] hover:bg-[#008f72] transition font-bold py-3 rounded-lg shadow-lg text-white">Entrar al Chat</button>
+                <button onclick="handleLogin()" class="w-full theme-btn transition font-bold py-3 rounded-lg shadow-lg">Entrar al Chat</button>
             </div>
 
             <!-- Formulario Registro -->
             <div id="registerForm" class="space-y-4 hidden">
                 <div>
-                    <label class="block text-xs uppercase font-bold text-[#8696a0] mb-1">@usuario (sin restricciones)</label>
+                    <label class="block text-xs uppercase font-bold text-[#8696a0] mb-1">@usuario (único)</label>
                     <input type="text" id="regUser" placeholder="@tu_nombre" class="w-full bg-[#2a3942] text-[#e9edef] border border-transparent rounded-lg px-4 py-3 focus:outline-none focus:border-[#00a884]">
                 </div>
                 <div>
-                    <label class="block text-xs uppercase font-bold text-[#8696a0] mb-1">Contraseña (sin límites)</label>
+                    <label class="block text-xs uppercase font-bold text-[#8696a0] mb-1">Contraseña</label>
                     <input type="text" id="regPass" placeholder="Cualquier contraseña" class="w-full bg-[#2a3942] text-[#e9edef] border border-transparent rounded-lg px-4 py-3 focus:outline-none focus:border-[#00a884]">
                 </div>
                 <div>
@@ -80,7 +101,7 @@
                     </div>
                     <div id="regSelectedEmojiDisplay" class="mt-2 text-2xl bg-[#2a3942] w-10 h-10 rounded-full flex items-center justify-center">👤</div>
                 </div>
-                <button onclick="handleRegister()" class="w-full bg-[#00a884] hover:bg-[#008f72] transition font-bold py-3 rounded-lg shadow-lg text-white">Registrarse y Entrar</button>
+                <button onclick="handleRegister()" class="w-full theme-btn transition font-bold py-3 rounded-lg shadow-lg">Registrarse y Entrar</button>
             </div>
 
             <!-- Formulario Recuperación -->
@@ -97,21 +118,21 @@
                     <label class="block text-xs uppercase font-bold text-[#8696a0] mb-1">Nueva Contraseña</label>
                     <input type="password" id="recovNewPass" placeholder="Nueva contraseña" class="w-full bg-[#2a3942] text-[#e9edef] border border-transparent rounded-lg px-4 py-3 focus:outline-none focus:border-[#00a884]">
                 </div>
-                <button onclick="handleRecovery()" class="w-full bg-[#00a884] hover:bg-[#008f72] transition font-bold py-3 rounded-lg shadow-lg text-white">Restablecer y Entrar</button>
+                <button onclick="handleRecovery()" class="w-full theme-btn transition font-bold py-3 rounded-lg shadow-lg">Restablecer y Entrar</button>
             </div>
         </div>
     </div>
 
     <!-- MODAL DE CÓDIGO DE RECUPERACIÓN -->
     <div id="recoveryModal" class="fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4 hidden">
-        <div class="bg-[#202c33] border border-[#222d34] rounded-xl w-full max-w-md p-6 text-center shadow-2xl">
+        <div class="theme-header border border-[#222d34] rounded-2xl w-full max-w-md p-6 text-center shadow-2xl">
             <div class="w-12 h-12 bg-emerald-500/20 text-emerald-400 rounded-full flex items-center justify-center mx-auto mb-3 text-xl">
                 <i class="fa-solid fa-key"></i>
             </div>
-            <h2 class="text-xl font-bold mb-2 text-[#e9edef]">¡Cuenta Creada Automáticamente!</h2>
+            <h2 class="text-xl font-bold mb-2">¡Cuenta Creada Automáticamente!</h2>
             <p class="text-[#8696a0] text-xs mb-4">Tu sesión está iniciada. Guarda muy bien este <strong>código de recuperación de 30 caracteres</strong>:</p>
             <div id="recoveryCodeBox" class="bg-[#111b21] p-4 rounded-lg font-mono text-xs text-[#00a884] break-all border border-[#2a3942] select-all mb-6"></div>
-            <button onclick="closeRecoveryModal()" class="w-full bg-[#00a884] hover:bg-[#008f72] transition font-bold py-2.5 rounded-lg text-white">Continuar al Chat</button>
+            <button onclick="closeRecoveryModal()" class="w-full theme-btn transition font-bold py-2.5 rounded-lg">Continuar al Chat</button>
         </div>
     </div>
 
@@ -119,13 +140,13 @@
     <div id="mainApp" class="flex h-full w-full hidden relative">
         
         <!-- SIDEBAR -->
-        <aside class="w-80 bg-[#111b21] border-r border-[#222d34] flex flex-col justify-between">
+        <aside class="w-80 theme-sidebar border-r border-[#222d34] flex flex-col justify-between">
             <div>
                 <!-- Header Perfil Usuario -->
-                <div class="h-16 px-4 bg-[#202c33] border-b border-[#222d34] flex items-center justify-between">
+                <div class="h-16 px-4 theme-header border-b border-[#222d34] flex items-center justify-between">
                     <div class="flex items-center gap-3">
                         <div id="myAvatarDisplay" class="w-10 h-10 rounded-full bg-[#2a3942] flex items-center justify-center overflow-hidden text-lg"></div>
-                        <h3 id="myUsernameDisplay" class="font-bold text-sm text-[#e9edef]"></h3>
+                        <h3 id="myUsernameDisplay" class="font-bold text-sm"></h3>
                     </div>
                     <div class="flex gap-3 text-[#8696a0]">
                         <button onclick="openConfig()" title="Configuración" class="hover:text-[#e9edef]"><i class="fa-solid fa-gear text-lg"></i></button>
@@ -133,7 +154,7 @@
                 </div>
 
                 <!-- Tabs Navegación -->
-                <div class="flex bg-[#111b21] border-b border-[#222d34]">
+                <div class="flex theme-tabs border-b border-[#222d34]">
                     <button onclick="switchNavTab('chats')" id="navChatsBtn" class="flex-1 py-3 text-xs font-bold border-b-2 border-[#00a884] text-[#00a884] transition">Chats</button>
                     <button onclick="switchNavTab('thematic')" id="navThematicBtn" class="flex-1 py-3 text-xs font-bold text-[#8696a0] border-b-2 border-transparent transition">Temáticos</button>
                     <button onclick="switchNavTab('friends')" id="navFriendsBtn" class="flex-1 py-3 text-xs font-bold text-[#8696a0] border-b-2 border-transparent transition">Amigos</button>
@@ -147,8 +168,8 @@
                         <div class="flex justify-between items-center px-2 py-2">
                             <span class="text-xs font-bold uppercase text-[#8696a0]">Conversaciones</span>
                             <div class="flex gap-2">
-                                <button onclick="openNewChatModal()" title="Nuevo Chat por @" class="text-xs bg-[#202c33] hover:bg-[#2a3942] text-[#8696a0] hover:text-[#e9edef] p-2 rounded-full transition"><i class="fa-solid fa-comment-medical"></i></button>
-                                <button onclick="openNewGroupModal()" title="Crear Grupo" class="text-xs bg-[#202c33] hover:bg-[#2a3942] text-[#8696a0] hover:text-[#e9edef] p-2 rounded-full transition"><i class="fa-solid fa-users"></i></button>
+                                <button onclick="openNewChatModal()" title="Nuevo Chat por @" class="text-xs theme-header hover:opacity-80 text-[#8696a0] hover:text-[#e9edef] p-2 rounded-full transition"><i class="fa-solid fa-comment-medical"></i></button>
+                                <button onclick="openNewGroupModal()" title="Crear Grupo" class="text-xs theme-header hover:opacity-80 text-[#8696a0] hover:text-[#e9edef] p-2 rounded-full transition"><i class="fa-solid fa-users"></i></button>
                             </div>
                         </div>
                         <div id="chatsList" class="space-y-1"></div>
@@ -158,7 +179,7 @@
                     <div id="tabThematicContent" class="space-y-1 hidden">
                         <div class="flex justify-between items-center px-2 py-2">
                             <span class="text-xs font-bold uppercase text-[#8696a0]">Grupos Temáticos</span>
-                            <button id="createThematicBtn" onclick="openNewThematicModal()" title="Crear Tema" class="text-xs bg-[#00a884] text-white px-2.5 py-1 rounded-full font-bold hidden">+ Nuevo</button>
+                            <button id="createThematicBtn" onclick="openNewThematicModal()" title="Crear Tema" class="text-xs theme-btn px-2.5 py-1 rounded-full font-bold hidden">+ Nuevo</button>
                         </div>
                         <div id="thematicList" class="space-y-1"></div>
                     </div>
@@ -167,7 +188,7 @@
                     <div id="tabFriendsContent" class="space-y-3 hidden">
                         <div class="flex justify-between items-center px-2 py-2">
                             <span class="text-xs font-bold uppercase text-[#8696a0]">Solicitudes & Amigos</span>
-                            <button onclick="openAddFriendModal()" class="text-xs bg-[#202c33] text-[#8696a0] hover:text-[#e9edef] px-2.5 py-1 rounded-full font-bold">+ Solicitar</button>
+                            <button onclick="openAddFriendModal()" class="text-xs theme-header text-[#8696a0] hover:text-[#e9edef] px-2.5 py-1 rounded-full font-bold">+ Solicitar</button>
                         </div>
                         <div>
                             <h4 class="text-[10px] uppercase font-bold text-indigo-400 px-2 mb-1">Solicitudes Pendientes</h4>
@@ -187,11 +208,11 @@
         <main class="flex-1 flex flex-col whatsapp-bg" id="chatMainContainer">
             
             <!-- Header Chat Activo -->
-            <div id="chatHeader" class="h-16 border-b border-[#222d34] px-6 flex items-center justify-between bg-[#202c33] cursor-pointer hover:bg-[#233138] transition" onclick="openActiveChatProfile()">
+            <div id="chatHeader" class="h-16 border-b border-[#222d34] px-6 flex items-center justify-between theme-header cursor-pointer hover:opacity-95 transition" onclick="openActiveChatProfile()">
                 <div class="flex items-center gap-3">
                     <div id="activeChatAvatar" class="w-10 h-10 rounded-full bg-[#2a3942] flex items-center justify-center text-lg">💬</div>
                     <div>
-                        <h2 id="activeChatTitle" class="font-bold text-sm text-[#e9edef]">Selecciona un chat</h2>
+                        <h2 id="activeChatTitle" class="font-bold text-sm">Selecciona un chat</h2>
                         <span id="activeChatSub" class="text-xs text-[#8696a0]">Haz clic aquí para ver perfil y apodos</span>
                     </div>
                 </div>
@@ -202,22 +223,22 @@
             <div id="messagesContainer" class="flex-1 p-6 overflow-y-auto space-y-3 flex flex-col">
                 <div class="m-auto text-center text-[#8696a0]">
                     <i class="fa-brands fa-whatsapp text-6xl mb-3 opacity-30"></i>
-                    <p class="text-sm">Envía y recibe mensajes seguros.</p>
+                    <p class="text-sm">Envía el primer mensaje...</p>
                 </div>
             </div>
 
             <!-- BARRA INFERIOR DE CHAT -->
-            <div id="chatInputArea" class="px-4 py-3 bg-[#202c33] border-t border-[#222d34] flex items-center gap-3 relative hidden">
+            <div id="chatInputArea" class="px-4 py-3 theme-header border-t border-[#222d34] flex items-center gap-3 relative hidden">
                 <button onclick="openChatEmojiPicker()" class="text-[#8696a0] hover:text-[#e9edef] text-xl transition"><i class="fa-regular fa-face-smile"></i></button>
 
                 <div class="relative">
                     <button onclick="toggleMediaMenu()" class="text-[#8696a0] hover:text-[#e9edef] text-xl transition"><i class="fa-solid fa-paperclip"></i></button>
-                    <div id="mediaMenu" class="absolute bottom-12 left-0 bg-[#233138] border border-[#222d34] rounded-xl p-3 hidden shadow-2xl flex flex-col gap-2 z-30 min-w-[160px]">
-                        <label class="flex items-center gap-2.5 text-sm text-[#e9edef] hover:bg-[#111b21] p-2 rounded cursor-pointer transition">
+                    <div id="mediaMenu" class="absolute bottom-12 left-0 theme-header border border-[#222d34] rounded-xl p-3 hidden shadow-2xl flex flex-col gap-2 z-30 min-w-[160px]">
+                        <label class="flex items-center gap-2.5 text-sm hover:opacity-80 p-2 rounded cursor-pointer transition">
                             <i class="fa-solid fa-image text-purple-400"></i> Foto / Video
                             <input type="file" id="mediaImgVidInput" accept="image/*,video/*" class="hidden" onchange="sendMediaFile(this, 'media')">
                         </label>
-                        <label class="flex items-center gap-2.5 text-sm text-[#e9edef] hover:bg-[#111b21] p-2 rounded cursor-pointer transition">
+                        <label class="flex items-center gap-2.5 text-sm hover:opacity-80 p-2 rounded cursor-pointer transition">
                             <i class="fa-solid fa-file text-blue-400"></i> Documento
                             <input type="file" id="mediaFileInput" class="hidden" onchange="sendMediaFile(this, 'file')">
                         </label>
@@ -225,7 +246,7 @@
                 </div>
 
                 <div class="flex-1 flex items-center bg-[#2a3942] rounded-lg px-4 py-2" id="inputWrapper">
-                    <input type="text" id="messageInput" placeholder="Escribe un mensaje..." onkeypress="handleMsgKeyPress(event)" class="w-full bg-transparent focus:outline-none text-sm text-[#e9edef] placeholder-[#8696a0]">
+                    <input type="text" id="messageInput" placeholder="Escribe un mensaje..." onkeypress="handleMsgKeyPress(event)" class="w-full bg-transparent focus:outline-none text-sm placeholder-[#8696a0]">
                     
                     <div id="audioRecordingUI" class="hidden items-center justify-between w-full">
                         <div class="flex items-center gap-3">
@@ -235,7 +256,7 @@
                         </div>
                         <div class="flex gap-3">
                             <button onclick="cancelAudioRecording()" class="text-red-400 hover:text-red-300 text-sm"><i class="fa-solid fa-trash"></i></button>
-                            <button onclick="stopAndSendAudio()" class="bg-[#00a884] text-white px-3 py-1 rounded-full text-xs font-bold hover:bg-[#008f72]"><i class="fa-solid fa-check"></i> Enviar</button>
+                            <button onclick="stopAndSendAudio()" class="theme-btn px-3 py-1 rounded-full text-xs font-bold"><i class="fa-solid fa-check"></i> Enviar</button>
                         </div>
                     </div>
                 </div>
@@ -248,11 +269,11 @@
 
     <!-- MODAL SUPERIOR FLOTANTE DE EMOJIS (z-60) -->
     <div id="emojiPickerModal" class="fixed inset-0 bg-black/80 z-[60] flex items-center justify-center p-4 hidden">
-        <div class="bg-[#202c33] border border-[#222d34] rounded-xl w-full max-w-lg p-5 flex flex-col h-[480px] shadow-2xl">
+        <div class="theme-header border border-[#222d34] rounded-xl w-full max-w-lg p-5 flex flex-col h-[480px] shadow-2xl">
             <div class="flex justify-between items-center mb-3 border-b border-[#222d34] pb-2">
                 <div class="flex items-center gap-2">
                     <i class="fa-solid fa-face-smile text-[#00a884]"></i>
-                    <h3 class="font-bold text-sm text-[#e9edef]">Selector de Emojis</h3>
+                    <h3 class="font-bold text-sm">Selector de Emojis</h3>
                 </div>
                 <button onclick="closeEmojiPickerModal()" class="text-[#8696a0] hover:text-[#e9edef] text-lg px-2 py-1"><i class="fa-solid fa-xmark"></i></button>
             </div>
@@ -262,154 +283,214 @@
 
     <!-- MODAL PERFIL Y DETALLES -->
     <div id="profileModal" class="fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4 hidden">
-        <div class="bg-[#202c33] border border-[#222d34] rounded-xl w-full max-w-md p-6 shadow-2xl">
+        <div class="theme-header border border-[#222d34] rounded-xl w-full max-w-md p-6 shadow-2xl">
             <div class="flex justify-between items-center mb-4 border-b border-[#222d34] pb-2">
-                <h2 id="profileModalTitle" class="text-base font-bold text-[#e9edef]">Perfil / Detalles</h2>
+                <h2 id="profileModalTitle" class="text-base font-bold">Perfil / Detalles</h2>
                 <button onclick="closeModal('profileModal')" class="text-[#8696a0] hover:text-[#e9edef]"><i class="fa-solid fa-xmark text-xl"></i></button>
             </div>
-            <div id="profileModalContent" class="space-y-4 text-sm text-[#e9edef]"></div>
+            <div id="profileModalContent" class="space-y-4 text-sm"></div>
         </div>
     </div>
 
-    <!-- MODAL CONFIGURACIÓN Y PERFIL PROPIO -->
+    <!-- MODAL CONFIGURACIÓN ESTILO MINIMALISTA WHATSAPP -->
     <div id="configModal" class="fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4 hidden">
-        <div class="bg-[#202c33] border border-[#222d34] rounded-xl w-full max-w-lg p-6 max-h-[90vh] overflow-y-auto shadow-2xl">
-            <div class="flex justify-between items-center mb-4 border-b border-[#222d34] pb-2">
-                <h2 class="text-lg font-bold text-[#e9edef]">Mi Perfil y Tema Visual</h2>
-                <button onclick="closeConfig()" class="text-[#8696a0] hover:text-[#e9edef] text-xl font-bold px-2 py-1"><i class="fa-solid fa-xmark"></i></button>
+        <div class="theme-header border border-[#222d34] rounded-2xl w-full max-w-xl p-6 max-h-[92vh] overflow-y-auto shadow-2xl space-y-4">
+            
+            <!-- Header Ajustes Estilo WhatsApp -->
+            <div class="flex items-center justify-between border-b border-[#222d34] pb-3">
+                <div class="flex items-center gap-3">
+                    <div id="configModalAvatar" class="w-12 h-12 rounded-full bg-[#2a3942] flex items-center justify-center text-xl overflow-hidden shadow">👤</div>
+                    <div>
+                        <h2 id="configModalUsername" class="font-bold text-sm">@usuario</h2>
+                        <span class="text-[11px] text-[#00a884]">Ajustes de Apariencia Minimalista</span>
+                    </div>
+                </div>
+                <div class="flex gap-2">
+                    <button onclick="resetThemeConfig()" title="Reiniciar Ajustes" class="bg-[#2a3942] hover:bg-red-500/20 hover:text-red-400 text-[#8696a0] p-2 rounded-lg text-xs transition"><i class="fa-solid fa-rotate-right"></i></button>
+                    <button onclick="closeConfig()" class="text-[#8696a0] hover:text-[#e9edef] text-xl font-bold p-1"><i class="fa-solid fa-xmark"></i></button>
+                </div>
             </div>
-            <div class="space-y-4">
+
+            <!-- Avatar -->
+            <div class="bg-[#111b21] p-3 rounded-xl border border-[#222d34] flex items-center justify-between">
                 <div>
-                    <label class="block text-xs uppercase font-bold text-[#8696a0] mb-1">Cambiar Foto / Emoji</label>
-                    <div class="flex gap-3 items-center">
-                        <input type="file" id="configFileInput" accept="image/*" class="text-xs text-[#8696a0]">
-                        <button onclick="openEmojiPickerForConfig()" class="bg-[#2a3942] px-3 py-1.5 rounded-lg text-xs font-bold text-[#00a884] hover:bg-[#374248]">Elegir Emoji</button>
-                    </div>
+                    <h4 class="font-bold text-xs uppercase text-[#8696a0]">Foto de Perfil / Emoji</h4>
                 </div>
-                <hr class="border-[#222d34]">
-                <h3 class="font-bold text-sm text-[#00a884]">Personalización Visual</h3>
-                <div class="grid grid-cols-2 gap-4">
-                    <div>
-                        <label class="block text-xs font-bold text-[#8696a0] mb-1">Fondo General</label>
-                        <input type="color" id="confBgColor" value="#0b141a" class="w-full h-10 bg-[#2a3942] border-0 rounded cursor-pointer">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-bold text-[#8696a0] mb-1">Color de Burbujas</label>
-                        <input type="color" id="confChatColor" value="#005c4b" class="w-full h-10 bg-[#2a3942] border-0 rounded cursor-pointer">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-bold text-[#8696a0] mb-1">Color de Texto</label>
-                        <input type="color" id="confTextColor" value="#e9edef" class="w-full h-10 bg-[#2a3942] border-0 rounded cursor-pointer">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-bold text-[#8696a0] mb-1">Tipo de Letra</label>
-                        <select id="confFontType" class="w-full bg-[#2a3942] border border-transparent rounded-lg p-2 text-sm text-[#e9edef]">
-                            <option value="custom-font-sans">Segoe / Sans</option>
-                            <option value="custom-font-serif">Georgia / Serif</option>
-                            <option value="custom-font-mono">Courier / Mono</option>
-                            <option value="custom-font-comic">Comic Sans</option>
-                        </select>
-                    </div>
-                </div>
-                <button onclick="saveThemeConfig()" class="w-full bg-[#00a884] hover:bg-[#008f72] font-bold py-2.5 rounded-lg text-white">Guardar Cambios</button>
+                <button onclick="openEmojiPickerForConfig()" class="theme-btn px-3 py-1 rounded-lg text-xs font-bold">Elegir Emoji</button>
             </div>
+
+            <!-- Sección de Colores Individuales con Bolitas Minimalistas -->
+            <div class="bg-[#111b21] p-4 rounded-xl border border-[#222d34] space-y-3">
+                <h3 class="font-bold text-xs uppercase text-[#00a884] mb-2"><i class="fa-solid fa-palette mr-1"></i> Personalización por Apartado (Bolitas de Color)</h3>
+                
+                <div class="grid grid-cols-2 gap-2.5 text-xs">
+                    <div class="bg-[#202c33] p-2.5 rounded-lg flex items-center justify-between">
+                        <span>Fondo General</span>
+                        <input type="color" id="confBgColor" value="#0b141a" oninput="updateThemePreview()">
+                    </div>
+                    <div class="bg-[#202c33] p-2.5 rounded-lg flex items-center justify-between">
+                        <span>Inicio de Sesión</span>
+                        <input type="color" id="confAuthBg" value="#111b21" oninput="updateThemePreview()">
+                    </div>
+                    <div class="bg-[#202c33] p-2.5 rounded-lg flex items-center justify-between">
+                        <span>Menú Lateral</span>
+                        <input type="color" id="confSidebarBg" value="#111b21" oninput="updateThemePreview()">
+                    </div>
+                    <div class="bg-[#202c33] p-2.5 rounded-lg flex items-center justify-between">
+                        <span>Cabeceras y Barras</span>
+                        <input type="color" id="confHeaderBg" value="#202c33" oninput="updateThemePreview()">
+                    </div>
+                    <div class="bg-[#202c33] p-2.5 rounded-lg flex items-center justify-between">
+                        <span>Pestañas Extra</span>
+                        <input type="color" id="confTabsBg" value="#111b21" oninput="updateThemePreview()">
+                    </div>
+                    <div class="bg-[#202c33] p-2.5 rounded-lg flex items-center justify-between">
+                        <span>Todos los Botones</span>
+                        <input type="color" id="confButtonColor" value="#00a884" oninput="updateThemePreview()">
+                    </div>
+                    <div class="bg-[#202c33] p-2.5 rounded-lg flex items-center justify-between">
+                        <span>Mensajes Enviados</span>
+                        <input type="color" id="confChatColor" value="#005c4b" oninput="updateThemePreview()">
+                    </div>
+                    <div class="bg-[#202c33] p-2.5 rounded-lg flex items-center justify-between">
+                        <span>Mensajes Recibidos</span>
+                        <input type="color" id="confReceivedColor" value="#202c33" oninput="updateThemePreview()">
+                    </div>
+                    <div class="bg-[#202c33] p-2.5 rounded-lg flex items-center justify-between col-span-2">
+                        <span>Color de Texto General</span>
+                        <input type="color" id="confTextColor" value="#e9edef" oninput="updateThemePreview()">
+                    </div>
+                </div>
+
+                <div class="pt-1">
+                    <label class="block text-xs font-bold text-[#8696a0] mb-1">Tipo de Letra</label>
+                    <select id="confFontType" onchange="updateThemePreview()" class="w-full bg-[#202c33] border border-[#222d34] rounded-lg p-2 text-xs">
+                        <option value="custom-font-sans">Segoe / Sans</option>
+                        <option value="custom-font-serif">Georgia / Serif</option>
+                        <option value="custom-font-mono">Courier / Mono</option>
+                        <option value="custom-font-comic">Comic Sans</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- PREVISUALIZACIÓN EN TIEMPO REAL -->
+            <div class="bg-[#111b21] p-3 rounded-xl border border-[#222d34] space-y-2">
+                <label class="block text-[10px] uppercase font-bold text-[#8696a0]">Previsualización en vivo</label>
+                <div id="configPreviewContainer" class="p-3 rounded-xl transition-all space-y-2 border border-[#222d34]" style="background-color: #0b141a;">
+                    <div class="flex justify-start">
+                        <div id="previewIncomingBubble" class="p-2 rounded-lg text-xs max-w-[80%] bg-[#202c33]">
+                            Ejemplo de mensaje recibido.
+                        </div>
+                    </div>
+                    <div class="flex justify-end">
+                        <div id="previewOutgoingBubble" class="p-2 rounded-lg text-xs max-w-[80%] bg-[#005c4b]">
+                            Ejemplo de mensaje enviado.
+                        </div>
+                    </div>
+                    <div>
+                        <button id="previewBtnSample" class="w-full py-1.5 rounded text-xs font-bold bg-[#00a884] text-white">Botón de Ejemplo</button>
+                    </div>
+                </div>
+            </div>
+
+            <button onclick="saveThemeConfig()" class="w-full theme-btn font-bold py-2.5 rounded-xl shadow-lg transition text-xs">Guardar Cambios</button>
         </div>
     </div>
 
     <!-- MODAL NUEVO CHAT DIRECTO -->
     <div id="newChatModal" class="fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4 hidden">
-        <div class="bg-[#202c33] border border-[#222d34] rounded-xl w-full max-w-sm p-6 shadow-2xl">
-            <h2 class="text-base font-bold mb-3 text-[#e9edef]">Iniciar chat por @usuario</h2>
-            <input type="text" id="targetChatUser" placeholder="@usuario" class="w-full bg-[#2a3942] text-[#e9edef] border border-transparent rounded-lg px-4 py-2.5 mb-4 focus:outline-none focus:border-[#00a884]">
+        <div class="theme-header border border-[#222d34] rounded-xl w-full max-w-sm p-6 shadow-2xl">
+            <h2 class="text-base font-bold mb-3">Iniciar chat por @usuario</h2>
+            <input type="text" id="targetChatUser" placeholder="@usuario" class="w-full bg-[#2a3942] border border-transparent rounded-lg px-4 py-2.5 mb-4 focus:outline-none focus:border-[#00a884]">
             <div class="flex justify-end gap-2">
-                <button onclick="closeModal('newChatModal')" class="px-4 py-2 bg-[#2a3942] rounded-lg text-sm text-[#e9edef]">Cancelar</button>
-                <button onclick="startDirectChat()" class="px-4 py-2 bg-[#00a884] rounded-lg text-sm font-bold text-white">Abrir Chat</button>
+                <button onclick="closeModal('newChatModal')" class="px-4 py-2 bg-[#2a3942] rounded-lg text-sm">Cancelar</button>
+                <button onclick="startDirectChat()" class="px-4 py-2 theme-btn rounded-lg text-sm font-bold">Abrir Chat</button>
             </div>
         </div>
     </div>
 
     <!-- MODAL NUEVO GRUPO PERSONALIZADO -->
     <div id="newGroupModal" class="fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4 hidden">
-        <div class="bg-[#202c33] border border-[#222d34] rounded-xl w-full max-w-md p-6 shadow-2xl">
-            <h2 class="text-base font-bold mb-3 text-[#e9edef]">Crear Grupo Personalizado</h2>
+        <div class="theme-header border border-[#222d34] rounded-xl w-full max-w-md p-6 shadow-2xl">
+            <h2 class="text-base font-bold mb-3">Crear Grupo Personalizado</h2>
             <div class="space-y-3 mb-4">
-                <input type="text" id="newGroupName" placeholder="Nombre del grupo" class="w-full bg-[#2a3942] text-[#e9edef] border border-transparent rounded-lg px-4 py-2.5 focus:outline-none focus:border-[#00a884]">
-                <textarea id="newGroupDesc" placeholder="Descripción del grupo (opcional)" rows="2" class="w-full bg-[#2a3942] text-[#e9edef] border border-transparent rounded-lg p-3 text-xs focus:outline-none focus:border-[#00a884]"></textarea>
+                <input type="text" id="newGroupName" placeholder="Nombre del grupo" class="w-full bg-[#2a3942] border border-transparent rounded-lg px-4 py-2.5 focus:outline-none focus:border-[#00a884]">
+                <textarea id="newGroupDesc" placeholder="Descripción del grupo (opcional)" rows="2" class="w-full bg-[#2a3942] border border-transparent rounded-lg p-3 text-xs focus:outline-none focus:border-[#00a884]"></textarea>
                 <div>
                     <label class="block text-xs font-bold text-[#8696a0] mb-1">Icono del Grupo</label>
                     <div class="flex gap-2 items-center">
-                        <button onclick="openEmojiPickerForGroup()" class="bg-[#2a3942] px-3 py-2 rounded-lg text-xs font-bold text-[#00a884]">Elegir Emoji</button>
+                        <button onclick="openEmojiPickerForGroup()" class="theme-btn px-3 py-2 rounded-lg text-xs font-bold">Elegir Emoji</button>
                         <span id="groupSelectedEmojiDisplay" class="text-2xl">👥</span>
                     </div>
                 </div>
-                <input type="text" id="newGroupMembers" placeholder="@miembro1, @miembro2" class="w-full bg-[#2a3942] text-[#e9edef] border border-transparent rounded-lg px-4 py-2.5 focus:outline-none focus:border-[#00a884]">
+                <input type="text" id="newGroupMembers" placeholder="@miembro1, @miembro2" class="w-full bg-[#2a3942] border border-transparent rounded-lg px-4 py-2.5 focus:outline-none focus:border-[#00a884]">
             </div>
             <div class="flex justify-end gap-2">
-                <button onclick="closeModal('newGroupModal')" class="px-4 py-2 bg-[#2a3942] rounded-lg text-sm text-[#e9edef]">Cancelar</button>
-                <button onclick="createCustomGroup()" class="px-4 py-2 bg-[#00a884] rounded-lg text-sm font-bold text-white">Crear Grupo</button>
+                <button onclick="closeModal('newGroupModal')" class="px-4 py-2 bg-[#2a3942] rounded-lg text-sm">Cancelar</button>
+                <button onclick="createCustomGroup()" class="px-4 py-2 theme-btn rounded-lg text-sm font-bold">Crear Grupo</button>
             </div>
         </div>
     </div>
 
     <!-- MODAL NUEVO GRUPO TEMÁTICO (@ssaauull123) -->
     <div id="newThematicModal" class="fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4 hidden">
-        <div class="bg-[#202c33] border border-[#222d34] rounded-xl w-full max-w-md p-6 shadow-2xl">
-            <h2 class="text-base font-bold mb-3 text-[#e9edef]">Crear Grupo Temático (Exclusivo Admin)</h2>
+        <div class="theme-header border border-[#222d34] rounded-xl w-full max-w-md p-6 shadow-2xl">
+            <h2 class="text-base font-bold mb-3">Crear Grupo Temático (Exclusivo Admin)</h2>
             <div class="space-y-3 mb-4">
-                <input type="text" id="newThematicName" placeholder="Nombre del tema (ej. Historia)" class="w-full bg-[#2a3942] text-[#e9edef] border border-transparent rounded-lg px-4 py-2.5 focus:outline-none focus:border-[#00a884]">
-                <textarea id="newThematicDesc" placeholder="Descripción del tema" rows="2" class="w-full bg-[#2a3942] text-[#e9edef] border border-transparent rounded-lg p-3 text-xs focus:outline-none focus:border-[#00a884]"></textarea>
+                <input type="text" id="newThematicName" placeholder="Nombre del tema (ej. Historia)" class="w-full bg-[#2a3942] border border-transparent rounded-lg px-4 py-2.5 focus:outline-none focus:border-[#00a884]">
+                <textarea id="newThematicDesc" placeholder="Descripción del tema" rows="2" class="w-full bg-[#2a3942] border border-transparent rounded-lg p-3 text-xs focus:outline-none focus:border-[#00a884]"></textarea>
                 <div>
                     <label class="block text-xs font-bold text-[#8696a0] mb-1">Icono del Tema</label>
                     <div class="flex gap-2 items-center">
-                        <button onclick="openEmojiPickerForThematic()" class="bg-[#2a3942] px-3 py-2 rounded-lg text-xs font-bold text-[#00a884]">Elegir Emoji</button>
+                        <button onclick="openEmojiPickerForThematic()" class="theme-btn px-3 py-2 rounded-lg text-xs font-bold">Elegir Emoji</button>
                         <span id="thematicSelectedEmojiDisplay" class="text-2xl">📚</span>
                     </div>
                 </div>
             </div>
             <div class="flex justify-end gap-2">
-                <button onclick="closeModal('newThematicModal')" class="px-4 py-2 bg-[#2a3942] rounded-lg text-sm text-[#e9edef]">Cancelar</button>
-                <button onclick="createThematicGroup()" class="px-4 py-2 bg-[#00a884] rounded-lg text-sm font-bold text-white">Crear Tema</button>
+                <button onclick="closeModal('newThematicModal')" class="px-4 py-2 bg-[#2a3942] rounded-lg text-sm">Cancelar</button>
+                <button onclick="createThematicGroup()" class="px-4 py-2 theme-btn rounded-lg text-sm font-bold">Crear Tema</button>
             </div>
         </div>
     </div>
 
     <!-- MODAL ENVIAR SOLICITUD DE AMISTAD -->
     <div id="addFriendModal" class="fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4 hidden">
-        <div class="bg-[#202c33] border border-[#222d34] rounded-xl w-full max-w-sm p-6 shadow-2xl">
-            <h2 class="text-base font-bold mb-3 text-[#e9edef]">Enviar Solicitud de Amistad</h2>
-            <input type="text" id="friendUser" placeholder="@usuario" class="w-full bg-[#2a3942] text-[#e9edef] border border-transparent rounded-lg px-4 py-2.5 mb-4 focus:outline-none focus:border-[#00a884]">
+        <div class="theme-header border border-[#222d34] rounded-xl w-full max-w-sm p-6 shadow-2xl">
+            <h2 class="text-base font-bold mb-3">Enviar Solicitud de Amistad</h2>
+            <input type="text" id="friendUser" placeholder="@usuario" class="w-full bg-[#2a3942] border border-transparent rounded-lg px-4 py-2.5 mb-4 focus:outline-none focus:border-[#00a884]">
             <div class="flex justify-end gap-2">
-                <button onclick="closeModal('addFriendModal')" class="px-4 py-2 bg-[#2a3942] rounded-lg text-sm text-[#e9edef]">Cancelar</button>
-                <button onclick="sendFriendRequest()" class="px-4 py-2 bg-[#00a884] rounded-lg text-sm font-bold text-white">Enviar Solicitud</button>
+                <button onclick="closeModal('addFriendModal')" class="px-4 py-2 bg-[#2a3942] rounded-lg text-sm">Cancelar</button>
+                <button onclick="sendFriendRequest()" class="px-4 py-2 theme-btn rounded-lg text-sm font-bold">Enviar Solicitud</button>
             </div>
         </div>
     </div>
 
     <!-- MODAL ADMIN TOTAL DE GRUPO -->
     <div id="groupAdminModal" class="fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4 hidden">
-        <div class="bg-[#202c33] border border-[#222d34] rounded-xl w-full max-w-md p-6 shadow-2xl max-h-[90vh] overflow-y-auto">
-            <h2 class="text-base font-bold mb-3 text-[#e9edef]">Administración Total del Grupo</h2>
+        <div class="theme-header border border-[#222d34] rounded-xl w-full max-w-md p-6 shadow-2xl max-h-[90vh] overflow-y-auto">
+            <h2 class="text-base font-bold mb-3">Administración Total del Grupo</h2>
             <div class="space-y-4 mb-4">
                 <div>
                     <label class="block text-xs font-bold text-[#8696a0] mb-1">Nombre del Grupo</label>
-                    <input type="text" id="adminGroupName" class="w-full bg-[#2a3942] text-[#e9edef] border border-transparent rounded-lg px-4 py-2.5">
+                    <input type="text" id="adminGroupName" class="w-full bg-[#2a3942] border border-transparent rounded-lg px-4 py-2.5">
                 </div>
                 <div>
                     <label class="block text-xs font-bold text-[#8696a0] mb-1">Descripción</label>
-                    <textarea id="adminGroupDesc" rows="2" class="w-full bg-[#2a3942] text-[#e9edef] border border-transparent rounded-lg p-3 text-xs"></textarea>
+                    <textarea id="adminGroupDesc" rows="2" class="w-full bg-[#2a3942] border border-transparent rounded-lg p-3 text-xs"></textarea>
                 </div>
                 <div>
                     <label class="block text-xs font-bold text-[#8696a0] mb-1">Icono del Grupo</label>
                     <div class="flex gap-2 items-center">
-                        <button onclick="openEmojiPickerForAdminGroup()" class="bg-[#2a3942] px-3 py-2 rounded-lg text-xs font-bold text-[#00a884]">Cambiar Emoji</button>
+                        <button onclick="openEmojiPickerForAdminGroup()" class="theme-btn px-3 py-2 rounded-lg text-xs font-bold">Cambiar Emoji</button>
                         <span id="adminGroupIconDisplay" class="text-2xl">👥</span>
                     </div>
                 </div>
                 <div>
                     <label class="block text-xs font-bold text-[#8696a0] mb-1">Añadir Miembro (@)</label>
                     <div class="flex gap-2">
-                        <input type="text" id="adminAddMemberInput" placeholder="@usuario" class="flex-1 bg-[#2a3942] text-[#e9edef] border border-transparent rounded-lg px-4 py-2.5">
-                        <button onclick="groupAdminAddUser()" class="bg-[#00a884] px-4 py-2.5 rounded-lg font-bold text-sm text-white">Añadir</button>
+                        <input type="text" id="adminAddMemberInput" placeholder="@usuario" class="flex-1 bg-[#2a3942] border border-transparent rounded-lg px-4 py-2.5">
+                        <button onclick="groupAdminAddUser()" class="theme-btn px-4 py-2.5 rounded-lg font-bold text-sm">Añadir</button>
                     </div>
                 </div>
                 <div>
@@ -418,8 +499,8 @@
                 </div>
             </div>
             <div class="flex justify-end gap-2">
-                <button onclick="closeModal('groupAdminModal')" class="px-4 py-2 bg-[#2a3942] rounded-lg text-sm text-[#e9edef]">Cerrar</button>
-                <button onclick="saveGroupAdminChanges()" class="px-4 py-2 bg-[#00a884] rounded-lg text-sm font-bold text-white">Guardar Cambios</button>
+                <button onclick="closeModal('groupAdminModal')" class="px-4 py-2 bg-[#2a3942] rounded-lg text-sm">Cerrar</button>
+                <button onclick="saveGroupAdminChanges()" class="px-4 py-2 theme-btn rounded-lg text-sm font-bold">Guardar Cambios</button>
             </div>
         </div>
     </div>
@@ -447,6 +528,19 @@
         let audioTimerInterval = null;
         let audioSeconds = 0;
         let unreadCounts = {};
+
+        const DEFAULT_THEME = {
+            bgColor: '#0b141a',
+            authBg: '#111b21',
+            sidebarBg: '#111b21',
+            headerBg: '#202c33',
+            tabsBg: '#111b21',
+            buttonColor: '#00a884',
+            chatColor: '#005c4b',
+            receivedColor: '#202c33',
+            textColor: '#e9edef',
+            font: 'custom-font-sans'
+        };
 
         const ALL_EMOJIS = [
             "😀","😃","😄","😁","😆","😅","🤣","😊","😇","🙂","🙃","😉","😌","😍","🥰","😘","😗","😙","😚","😋","😛","😝","😜","🤪","🤨","🧐","🤓","😎","🥳","😏","😒","😞","😔","😟","😕","🙁","☹️","😣","😖","😫","😩","🥺","😢","😭","😤","😠","😡","🤬","🤯","😳","🥵","🥶","😱","😨","😰","😥","😓","🤗","🤔","🤭","🤫","🤥","😶","😐","😑","😬","🙄","😯","😦","😧","😴","🤤","😷","🤒","🤕","🤢","🤮","🤧","🥴","😵","🤠","🥳","🥸","😎","🤓","🧐","😕","🫤","😟","🙁","☹️","😮","😯","😲","😳","🥺","🥹","😦","😧","😨","😰","😥","😢","😭","😱","😖","😣","😞","😓","😩","😫","🥱","😤","😡","😠","🤬","😈","👿","💀","☠️","💩","🤡","👹","👺","👻","👽","👾","🤖","😺","😸","😹","😻","😼","😽","🙀","😿","😾",
@@ -491,6 +585,7 @@
             }
         }
 
+        // VERIFICAR QUE EL USUARIO NO EXISTA AL REGISTRARSE
         function handleRegister() {
             let user = document.getElementById('regUser').value.trim();
             const pass = document.getElementById('regPass').value;
@@ -500,32 +595,39 @@
             if(!user.startsWith('@')) user = '@' + user;
 
             const safeKey = user.replace(/[@.#$\/\[\]]/g, '_');
-            const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-            let recoveryCode = '';
-            for(let i=0; i<30; i++) recoveryCode += chars.charAt(Math.floor(Math.random() * chars.length));
+            
+            db.ref('users/' + safeKey).once('value', snapshot => {
+                if(snapshot.exists()) {
+                    return alert('Este @usuario ya está registrado. Elige otro nombre único.');
+                }
 
-            const saveUserData = (pic) => {
-                const userData = {
-                    username: user,
-                    password: pass,
-                    profilePic: pic || currentRegPic,
-                    recoveryCode: recoveryCode,
-                    theme: { bgColor: '#0b141a', chatColor: '#005c4b', textColor: '#e9edef', font: 'custom-font-sans', bgImage: '' }
+                const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+                let recoveryCode = '';
+                for(let i=0; i<30; i++) recoveryCode += chars.charAt(Math.floor(Math.random() * chars.length));
+
+                const saveUserData = (pic) => {
+                    const userData = {
+                        username: user,
+                        password: pass,
+                        profilePic: pic || currentRegPic,
+                        recoveryCode: recoveryCode,
+                        theme: { ...DEFAULT_THEME }
+                    };
+                    db.ref('users/' + safeKey).set(userData).then(() => {
+                        currentUser = userData;
+                        document.getElementById('recoveryCodeBox').innerText = recoveryCode;
+                        document.getElementById('recoveryModal').classList.remove('hidden');
+                    });
                 };
-                db.ref('users/' + safeKey).set(userData).then(() => {
-                    currentUser = userData;
-                    document.getElementById('recoveryCodeBox').innerText = recoveryCode;
-                    document.getElementById('recoveryModal').classList.remove('hidden');
-                });
-            };
 
-            if(fileInput.files && fileInput.files[0]) {
-                const reader = new FileReader();
-                reader.onload = e => saveUserData(e.target.result);
-                reader.readAsDataURL(fileInput.files[0]);
-            } else {
-                saveUserData(currentRegPic);
-            }
+                if(fileInput.files && fileInput.files[0]) {
+                    const reader = new FileReader();
+                    reader.onload = e => saveUserData(e.target.result);
+                    reader.readAsDataURL(fileInput.files[0]);
+                } else {
+                    saveUserData(currentRegPic);
+                }
+            });
         }
 
         function closeRecoveryModal() {
@@ -578,7 +680,7 @@
             
             document.getElementById('myUsernameDisplay').innerText = currentUser.username;
             renderMyAvatar();
-            applyTheme(currentUser.theme);
+            applyTheme(currentUser.theme || DEFAULT_THEME);
 
             if(currentUser.username === '@ssaauull123') {
                 document.getElementById('createThematicBtn').classList.remove('hidden');
@@ -675,7 +777,7 @@
                         const senderUser = child.val().sender;
                         const senderSafe = child.key;
                         reqContainer.innerHTML += `
-                            <div class="flex items-center justify-between p-2 rounded bg-[#202c33] text-xs">
+                            <div class="flex items-center justify-between p-2 rounded theme-header text-xs">
                                 <span>${senderUser}</span>
                                 <div class="flex gap-1">
                                     <button onclick="acceptRequest('${senderSafe}', '${senderUser}')" class="bg-emerald-600 px-2 py-1 rounded text-white font-bold"><i class="fa-solid fa-check"></i></button>
@@ -698,15 +800,15 @@
                 const chatId = u1 < u2 ? `${u1}_${u2}` : `${u2}_${u1}`;
 
                 friendsContainer.innerHTML += `
-                    <div class="flex items-center justify-between p-2 rounded hover:bg-[#202c33] transition">
+                    <div class="flex items-center justify-between p-2 rounded hover:opacity-85 transition">
                         <div class="flex items-center gap-2">
                             <div class="w-8 h-8 rounded-full bg-[#2a3942] flex items-center justify-center text-xs"><i class="fa-solid fa-user"></i></div>
                             <div>
-                                <div class="font-bold text-xs text-[#e9edef]">${displayName}</div>
+                                <div class="font-bold text-xs">${displayName}</div>
                                 <div class="text-[10px] text-emerald-400 font-bold">Amigo</div>
                             </div>
                         </div>
-                        <button onclick="openChat('direct', '${fUser}', '${fUser}', '${chatId}')" class="text-[10px] bg-[#00a884] text-white px-2.5 py-1 rounded font-bold">Chatear</button>
+                        <button onclick="openChat('direct', '${fUser}', '${fUser}', '${chatId}')" class="text-[10px] theme-btn px-2.5 py-1 rounded font-bold">Chatear</button>
                     </div>
                 `;
             }
@@ -719,14 +821,20 @@
             if(target === currentUser.username) return alert('No puedes enviarte solicitud a ti mismo');
 
             const targetSafe = target.replace(/[@.#$\/\[\]]/g, '_');
-            const mySafe = currentUser.username.replace(/[@.#$\/\[\]]/g, '_');
+            
+            db.ref('users/' + targetSafe).once('value', snapshot => {
+                if(!snapshot.exists()) {
+                    return alert('El usuario "' + target + '" no existe en la plataforma.');
+                }
 
-            db.ref(`friend_requests/${targetSafe}/${mySafe}`).set({
-                sender: currentUser.username,
-                timestamp: Date.now()
-            }).then(() => {
-                closeModal('addFriendModal');
-                alert('Solicitud de amistad enviada');
+                const mySafe = currentUser.username.replace(/[@.#$\/\[\]]/g, '_');
+                db.ref(`friend_requests/${targetSafe}/${mySafe}`).set({
+                    sender: currentUser.username,
+                    timestamp: Date.now()
+                }).then(() => {
+                    closeModal('addFriendModal');
+                    alert('Solicitud de amistad enviada');
+                });
             });
         }
 
@@ -803,15 +911,15 @@
             const globalNick = nicknamesObj['global_chat'];
             const globalTitle = globalNick ? `${globalNick} (Chat Global)` : 'Chat Global';
             container.innerHTML += `
-                <div onclick="openChat('global', 'Chat Global', 'Público general', 'global_chat')" class="flex items-center justify-between p-2.5 rounded-lg hover:bg-[#202c33] cursor-pointer transition">
+                <div onclick="openChat('global', 'Chat Global', 'Público general', 'global_chat')" class="flex items-center justify-between p-2.5 rounded-lg hover:opacity-80 cursor-pointer transition">
                     <div class="flex items-center gap-3">
-                        <div class="w-11 h-11 rounded-full bg-[#00a884]/20 text-[#00a884] flex items-center justify-center font-bold text-lg"><i class="fa-solid fa-globe"></i></div>
+                        <div class="w-11 h-11 rounded-full theme-btn opacity-90 flex items-center justify-center font-bold text-lg"><i class="fa-solid fa-globe"></i></div>
                         <div>
-                            <div class="font-bold text-sm text-[#e9edef]">${globalTitle}</div>
+                            <div class="font-bold text-sm">${globalTitle}</div>
                             <div class="text-xs text-[#8696a0]">Público general</div>
                         </div>
                     </div>
-                    ${globalUnread > 0 ? `<span class="bg-[#00a884] text-white text-xs px-2 py-0.5 rounded-full font-bold">${globalUnread}</span>` : ''}
+                    ${globalUnread > 0 ? `<span class="theme-btn text-xs px-2 py-0.5 rounded-full font-bold">${globalUnread}</span>` : ''}
                 </div>
             `;
 
@@ -826,15 +934,15 @@
                             const groupNick = nicknamesObj[gId];
                             const groupTitle = groupNick ? `${groupNick} (${group.name})` : group.name;
                             container.innerHTML += `
-                                <div onclick="openChat('group', '${group.name}', 'Grupo', '${gId}')" class="flex items-center justify-between p-2.5 rounded-lg hover:bg-[#202c33] cursor-pointer transition">
+                                <div onclick="openChat('group', '${group.name}', 'Grupo', '${gId}')" class="flex items-center justify-between p-2.5 rounded-lg hover:opacity-80 cursor-pointer transition">
                                     <div class="flex items-center gap-3">
-                                        <div class="w-11 h-11 rounded-full bg-[#202c33] text-[#00a884] flex items-center justify-center font-bold text-lg">${group.icon || '👥'}</div>
+                                        <div class="w-11 h-11 rounded-full theme-header flex items-center justify-center font-bold text-lg">${group.icon || '👥'}</div>
                                         <div>
-                                            <div class="font-bold text-sm text-[#e9edef]">${groupTitle}</div>
+                                            <div class="font-bold text-sm">${groupTitle}</div>
                                             <div class="text-xs text-[#8696a0]">Grupo</div>
                                         </div>
                                     </div>
-                                    ${unread > 0 ? `<span class="bg-[#00a884] text-white text-xs px-2 py-0.5 rounded-full font-bold">${unread}</span>` : ''}
+                                    ${unread > 0 ? `<span class="theme-btn text-xs px-2 py-0.5 rounded-full font-bold">${unread}</span>` : ''}
                                 </div>
                             `;
                         }
@@ -842,7 +950,7 @@
                 }
             });
 
-            // Chats directos activos (con amigos o no amigos)
+            // Chats directos activos
             for(let chatId in activeDirectChatsObj) {
                 const chatData = activeDirectChatsObj[chatId];
                 const partnerUser = chatData.partnerUsername;
@@ -857,18 +965,18 @@
                     : `<span class="text-[10px] bg-[#2a3942] text-[#8696a0] px-1.5 py-0.5 rounded font-bold">No amigo</span>`;
 
                 container.innerHTML += `
-                    <div onclick="openChat('direct', '${partnerUser}', '${partnerUser}', '${chatId}')" class="flex items-center justify-between p-2.5 rounded-lg hover:bg-[#202c33] cursor-pointer transition">
+                    <div onclick="openChat('direct', '${partnerUser}', '${partnerUser}', '${chatId}')" class="flex items-center justify-between p-2.5 rounded-lg hover:opacity-80 cursor-pointer transition">
                         <div class="flex items-center gap-3">
                             <div class="w-11 h-11 rounded-full bg-[#2a3942] text-[#8696a0] flex items-center justify-center font-bold text-lg"><i class="fa-solid fa-user"></i></div>
                             <div>
-                                <div class="font-bold text-sm text-[#e9edef]">${displayName}</div>
+                                <div class="font-bold text-sm">${displayName}</div>
                                 <div class="flex items-center gap-2 mt-0.5">
                                     <span class="text-xs text-[#8696a0]">Chat directo</span>
                                     ${friendBadge}
                                 </div>
                             </div>
                         </div>
-                        ${unread > 0 ? `<span class="bg-[#00a884] text-white text-xs px-2 py-0.5 rounded-full font-bold">${unread}</span>` : ''}
+                        ${unread > 0 ? `<span class="theme-btn text-xs px-2 py-0.5 rounded-full font-bold">${unread}</span>` : ''}
                     </div>
                 `;
             }
@@ -887,15 +995,15 @@
                         const themeNick = nicknamesObj[gId];
                         const themeTitle = themeNick ? `${themeNick} (${group.name})` : group.name;
                         container.innerHTML += `
-                            <div onclick="openChat('thematic', '${group.name}', 'Temático', '${gId}')" class="flex items-center justify-between p-2.5 rounded-lg hover:bg-[#202c33] cursor-pointer transition">
+                            <div onclick="openChat('thematic', '${group.name}', 'Temático', '${gId}')" class="flex items-center justify-between p-2.5 rounded-lg hover:opacity-80 cursor-pointer transition">
                                 <div class="flex items-center gap-3">
                                     <div class="w-11 h-11 rounded-full bg-indigo-600/20 text-indigo-400 flex items-center justify-center font-bold text-lg">${group.icon || '📚'}</div>
                                     <div>
-                                        <div class="font-bold text-sm text-[#e9edef]">${themeTitle}</div>
+                                        <div class="font-bold text-sm">${themeTitle}</div>
                                         <div class="text-xs text-[#8696a0]">Temático</div>
                                     </div>
                                 </div>
-                                ${unread > 0 ? `<span class="bg-[#00a884] text-white text-xs px-2 py-0.5 rounded-full font-bold">${unread}</span>` : ''}
+                                ${unread > 0 ? `<span class="theme-btn text-xs px-2 py-0.5 rounded-full font-bold">${unread}</span>` : ''}
                             </div>
                         `;
                     });
@@ -944,7 +1052,7 @@
                 db.ref('groups/' + extraId).once('value', snapshot => {
                     const gData = snapshot.val();
                     if(gData && gData.admin === currentUser.username) {
-                        actionsEl.innerHTML = `<button onclick="openGroupAdminModal('${extraId}')" class="bg-[#2a3942] hover:bg-[#374248] text-[#e9edef] px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1.5"><i class="fa-solid fa-gear"></i> Admin</button>`;
+                        actionsEl.innerHTML = `<button onclick="openGroupAdminModal('${extraId}')" class="theme-header hover:opacity-80 px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1.5"><i class="fa-solid fa-gear"></i> Admin</button>`;
                     }
                 });
             }
@@ -997,7 +1105,6 @@
             }
         }
 
-        // PERFIL CON ESTADO DE AMISTAD Y APODOS
         function openActiveChatProfile() {
             if(!currentActiveChat) return;
             const modalTitle = document.getElementById('profileModalTitle');
@@ -1017,8 +1124,8 @@
                         <h3 class="font-bold text-lg">Chat Global General</h3>
                         <div class="text-left">
                             <label class="block text-xs font-bold text-[#8696a0] mb-1">Apodo Personalizado</label>
-                            <input type="text" id="customNickInput" value="${currentNick}" placeholder="Apodo..." class="w-full bg-[#2a3942] text-[#e9edef] rounded px-3 py-2 text-sm mb-2">
-                            <button onclick="saveCustomNickname('${targetKey}')" class="w-full bg-[#00a884] text-white py-2 rounded text-xs font-bold">Guardar Apodo</button>
+                            <input type="text" id="customNickInput" value="${currentNick}" placeholder="Apodo..." class="w-full bg-[#2a3942] rounded px-3 py-2 text-sm mb-2">
+                            <button onclick="saveCustomNickname('${targetKey}')" class="w-full theme-btn py-2 rounded text-xs font-bold">Guardar Apodo</button>
                         </div>
                     </div>
                 `;
@@ -1042,8 +1149,8 @@
                             </div>
                             <div class="text-left pt-2 border-t border-[#222d34]">
                                 <label class="block text-xs font-bold text-[#8696a0] mb-1">Apodo Personalizado</label>
-                                <input type="text" id="customNickInput" value="${currentNick}" placeholder="Pon un apodo..." class="w-full bg-[#2a3942] text-[#e9edef] rounded px-3 py-2 text-sm mb-2">
-                                <button onclick="saveCustomNickname('${targetKey}')" class="w-full bg-[#00a884] text-white py-2 rounded text-xs font-bold">Guardar Apodo</button>
+                                <input type="text" id="customNickInput" value="${currentNick}" placeholder="Pon un apodo..." class="w-full bg-[#2a3942] rounded px-3 py-2 text-sm mb-2">
+                                <button onclick="saveCustomNickname('${targetKey}')" class="w-full theme-btn py-2 rounded text-xs font-bold">Guardar Apodo</button>
                             </div>
                         </div>`;
                 });
@@ -1061,8 +1168,8 @@
                             <p class="text-xs text-[#8696a0]">${g.description || 'Sin descripción'}</p>
                             <div class="text-left">
                                 <label class="block text-xs font-bold text-[#8696a0] mb-1">Apodo Personalizado para el Grupo</label>
-                                <input type="text" id="customNickInput" value="${currentNick}" placeholder="Pon un apodo..." class="w-full bg-[#2a3942] text-[#e9edef] rounded px-3 py-2 text-sm mb-2">
-                                <button onclick="saveCustomNickname('${targetKey}')" class="w-full bg-[#00a884] text-white py-2 rounded text-xs font-bold">Guardar Apodo</button>
+                                <input type="text" id="customNickInput" value="${currentNick}" placeholder="Pon un apodo..." class="w-full bg-[#2a3942] rounded px-3 py-2 text-sm mb-2">
+                                <button onclick="saveCustomNickname('${targetKey}')" class="w-full theme-btn py-2 rounded text-xs font-bold">Guardar Apodo</button>
                             </div>
                             ${membersList ? `<div class="text-left"><label class="block text-xs font-bold text-[#8696a0] mb-1">Miembros:</label><div class="flex flex-wrap gap-1">${membersList}</div></div>` : ''}
                         </div>`;
@@ -1191,14 +1298,14 @@
             else if(msg.type === 'audio') contentHTML = `<audio src="${msg.mediaUrl}" controls class="max-w-xs"></audio>`;
             else if(msg.type === 'file') contentHTML = `<a href="${msg.mediaUrl}" download="${msg.text}" class="flex items-center gap-2 text-blue-400 underline text-sm"><i class="fa-solid fa-file-arrow-down"></i> ${escapeHtml(msg.text)}</a>`;
 
-            const bubbleBg = isMe ? 'bg-[#005c4b] text-[#e9edef]' : 'bg-[#202c33] text-[#e9edef]';
+            const bubbleClass = isMe ? 'theme-bubble-sent' : 'theme-bubble-recv';
             const align = isMe ? 'ml-auto' : 'mr-auto';
             const timeStr = new Date(msg.timestamp || Date.now()).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
 
             container.innerHTML += `
                 <div class="flex flex-col ${isMe ? 'items-end' : 'items-start'} max-w-[70%] ${align}">
                     <span class="text-[10px] text-[#8696a0] mb-0.5 px-1">${msg.sender}</span>
-                    <div class="${bubbleBg} p-2.5 rounded-lg shadow relative flex flex-col message-bubble group">
+                    <div class="${bubbleClass} p-2.5 rounded-lg shadow relative flex flex-col message-bubble group">
                         ${contentHTML}
                         <div class="flex items-center justify-end gap-2 mt-1">
                             <span class="text-[9px] text-[#8696a0]">${timeStr}</span>
@@ -1245,6 +1352,7 @@
             } else if(emojiTargetMode === 'config') {
                 currentUser.profilePic = emoji;
                 renderMyAvatar();
+                document.getElementById('configModalAvatar').innerHTML = currentUser.profilePic.startsWith('data:image') ? `<img src="${currentUser.profilePic}" class="w-full h-full object-cover">` : currentUser.profilePic;
                 db.ref('users/' + currentUser.username.replace(/[@.#$\/\[\]]/g, '_') + '/profilePic').set(emoji);
             } else if(emojiTargetMode === 'groupIcon') {
                 currentGroupIcon = emoji;
@@ -1269,47 +1377,203 @@
         function openNewGroupModal() { document.getElementById('newGroupModal').classList.remove('hidden'); }
         function openNewThematicModal() { document.getElementById('newThematicModal').classList.remove('hidden'); }
         function openAddFriendModal() { document.getElementById('addFriendModal').classList.remove('hidden'); }
-        function openConfig() { document.getElementById('configModal').classList.remove('hidden'); }
+        
+        function openConfig() {
+            const theme = currentUser.theme || DEFAULT_THEME;
+            document.getElementById('confBgColor').value = theme.bgColor;
+            document.getElementById('confAuthBg').value = theme.authBg;
+            document.getElementById('confSidebarBg').value = theme.sidebarBg;
+            document.getElementById('confHeaderBg').value = theme.headerBg;
+            document.getElementById('confTabsBg').value = theme.tabsBg;
+            document.getElementById('confButtonColor').value = theme.buttonColor;
+            document.getElementById('confChatColor').value = theme.chatColor;
+            document.getElementById('confReceivedColor').value = theme.receivedColor;
+            document.getElementById('confTextColor').value = theme.textColor;
+            document.getElementById('confFontType').value = theme.font;
+            
+            document.getElementById('configModalUsername').innerText = currentUser.username;
+            const avatarBox = document.getElementById('configModalAvatar');
+            if(currentUser.profilePic && currentUser.profilePic.startsWith('data:image')) {
+                avatarBox.innerHTML = `<img src="${currentUser.profilePic}" class="w-full h-full object-cover">`;
+            } else {
+                avatarBox.innerHTML = currentUser.profilePic || '👤';
+            }
+
+            updateThemePreview();
+            document.getElementById('configModal').classList.remove('hidden');
+        }
         function closeConfig() { document.getElementById('configModal').classList.add('hidden'); }
 
+        function updateThemePreview() {
+            const theme = {
+                bgColor: document.getElementById('confBgColor').value,
+                authBg: document.getElementById('confAuthBg').value,
+                sidebarBg: document.getElementById('confSidebarBg').value,
+                headerBg: document.getElementById('confHeaderBg').value,
+                tabsBg: document.getElementById('confTabsBg').value,
+                buttonColor: document.getElementById('confButtonColor').value,
+                chatColor: document.getElementById('confChatColor').value,
+                receivedColor: document.getElementById('confReceivedColor').value,
+                textColor: document.getElementById('confTextColor').value,
+                font: document.getElementById('confFontType').value
+            };
+
+            const previewContainer = document.getElementById('configPreviewContainer');
+            const previewOutgoing = document.getElementById('previewOutgoingBubble');
+            const previewIncoming = document.getElementById('previewIncomingBubble');
+            const previewBtn = document.getElementById('previewBtnSample');
+
+            previewContainer.style.backgroundColor = theme.bgColor;
+            previewContainer.className = `p-3 rounded-xl transition-all space-y-2 border border-[#222d34] ${theme.font}`;
+            previewContainer.style.color = theme.textColor;
+
+            previewOutgoing.style.backgroundColor = theme.chatColor;
+            previewOutgoing.style.color = theme.textColor;
+
+            previewIncoming.style.backgroundColor = theme.receivedColor;
+            previewIncoming.style.color = theme.textColor;
+
+            previewBtn.style.backgroundColor = theme.buttonColor;
+            previewBtn.style.color = '#ffffff';
+        }
+
+        function applyTheme(theme) {
+            if(!theme) theme = DEFAULT_THEME;
+            const body = document.getElementById('appBody');
+            body.className = `h-screen flex flex-col overflow-hidden ${theme.font || 'custom-font-sans'}`;
+            body.style.backgroundColor = theme.bgColor || '#0b141a';
+            body.style.color = theme.textColor || '#e9edef';
+
+            let styleTag = document.getElementById('dynamicThemeStyle');
+            if(!styleTag) {
+                styleTag = document.createElement('style');
+                styleTag.id = 'dynamicThemeStyle';
+                document.head.appendChild(styleTag);
+            }
+
+            styleTag.innerHTML = `
+                .theme-auth { background-color: ${theme.authBg || '#111b21'} !important; color: ${theme.textColor || '#e9edef'} !important; }
+                .theme-sidebar { background-color: ${theme.sidebarBg || '#111b21'} !important; color: ${theme.textColor || '#e9edef'} !important; }
+                .theme-header { background-color: ${theme.headerBg || '#202c33'} !important; color: ${theme.textColor || '#e9edef'} !important; }
+                .theme-tabs { background-color: ${theme.tabsBg || '#111b21'} !important; color: ${theme.textColor || '#e9edef'} !important; }
+                .theme-btn { background-color: ${theme.buttonColor || '#00a884'} !important; color: #ffffff !important; }
+                .theme-btn:hover { opacity: 0.9; }
+                .theme-bubble-sent { background-color: ${theme.chatColor || '#005c4b'} !important; color: ${theme.textColor || '#e9edef'} !important; }
+                .theme-bubble-recv { background-color: ${theme.receivedColor || '#202c33'} !important; color: ${theme.textColor || '#e9edef'} !important; }
+            `;
+        }
+
+        function saveThemeConfig() {
+            const theme = {
+                bgColor: document.getElementById('confBgColor').value,
+                authBg: document.getElementById('confAuthBg').value,
+                sidebarBg: document.getElementById('confSidebarBg').value,
+                headerBg: document.getElementById('confHeaderBg').value,
+                tabsBg: document.getElementById('confTabsBg').value,
+                buttonColor: document.getElementById('confButtonColor').value,
+                chatColor: document.getElementById('confChatColor').value,
+                receivedColor: document.getElementById('confReceivedColor').value,
+                textColor: document.getElementById('confTextColor').value,
+                font: document.getElementById('confFontType').value
+            };
+
+            currentUser.theme = theme;
+            applyTheme(theme);
+            db.ref('users/' + currentUser.username.replace(/[@.#$\/\[\]]/g, '_') + '/theme').set(theme).then(() => {
+                closeConfig();
+                alert('Ajustes de apariencia guardados');
+            });
+        }
+
+        function resetThemeConfig() {
+            if(!confirm('¿Estás seguro de restablecer todos los ajustes visuales a los valores por defecto?')) return;
+            currentUser.theme = { ...DEFAULT_THEME };
+            applyTheme(DEFAULT_THEME);
+            db.ref('users/' + currentUser.username.replace(/[@.#$\/\[\]]/g, '_') + '/theme').set(DEFAULT_THEME).then(() => {
+                closeConfig();
+                alert('Ajustes restablecidos correctamente');
+            });
+        }
+
+        // VALIDAR QUE EL USUARIO EXISTA ANTES DE ABRIR CHAT DIRECTO
         function startDirectChat() {
             let target = document.getElementById('targetChatUser').value.trim();
             if(!target) return;
             if(!target.startsWith('@')) target = '@' + target;
-            closeModal('newChatModal');
 
             const targetSafe = target.replace(/[@.#$\/\[\]]/g, '_');
-            const u1 = currentUser.username.replace(/[@.#$\/\[\]]/g, '_');
-            const u2 = targetSafe;
-            const chatId = u1 < u2 ? `${u1}_${u2}` : `${u2}_${u1}`;
 
-            db.ref(`user_chats/${u1}/${chatId}`).set({ partnerUsername: target, partnerSafe: u2 });
-            db.ref(`user_chats/${u2}/${chatId}`).set({ partnerUsername: currentUser.username, partnerSafe: u1 });
+            db.ref('users/' + targetSafe).once('value', snapshot => {
+                if(!snapshot.exists()) {
+                    return alert('El usuario "' + target + '" no existe en la plataforma.');
+                }
 
-            openChat('direct', target, target, chatId);
+                closeModal('newChatModal');
+                const u1 = currentUser.username.replace(/[@.#$\/\[\]]/g, '_');
+                const u2 = targetSafe;
+                const chatId = u1 < u2 ? `${u1}_${u2}` : `${u2}_${u1}`;
+
+                db.ref(`user_chats/${u1}/${chatId}`).set({ partnerUsername: target, partnerSafe: u2 });
+                db.ref(`user_chats/${u2}/${chatId}`).set({ partnerUsername: currentUser.username, partnerSafe: u1 });
+
+                openChat('direct', target, target, chatId);
+            });
         }
 
+        // VALIDAR QUE LOS MIEMBROS EXISTAN ANTES DE CREAR GRUPO
         function createCustomGroup() {
             const name = document.getElementById('newGroupName').value.trim();
             const desc = document.getElementById('newGroupDesc').value.trim();
             const membersStr = document.getElementById('newGroupMembers').value.trim();
-            if(!name) return alert('Escribe un nombre');
+            if(!name) return alert('Escribe un nombre para el grupo');
 
             let membersObj = {};
-            membersObj[currentUser.username.replace(/[@.#$\/\[\]]/g, '_')] = true;
-            if(membersStr) {
-                membersStr.split(',').forEach(m => {
-                    let clean = m.trim();
-                    if(clean) {
-                        if(!clean.startsWith('@')) clean = '@' + clean;
-                        membersObj[clean.replace(/[@.#$\/\[\]]/g, '_')] = true;
-                    }
-                });
+            let mySafeKey = currentUser.username.replace(/[@.#$\/\[\]]/g, '_');
+            membersObj[mySafeKey] = true;
+
+            if(!membersStr) {
+                saveGroupToFirebase(name, desc, membersObj);
+                return;
             }
 
-            db.ref('groups').push().set({ name, description: desc, icon: currentGroupIcon, admin: currentUser.username, members: membersObj, createdAt: Date.now() }).then(() => {
+            let memberNames = membersStr.split(',').map(m => m.trim()).filter(m => m.length > 0);
+            let checkedCount = 0;
+            let invalidMembers = [];
+
+            memberNames.forEach(m => {
+                let clean = m;
+                if(!clean.startsWith('@')) clean = '@' + clean;
+                let safeU = clean.replace(/[@.#$\/\[\]]/g, '_');
+
+                db.ref('users/' + safeU).once('value', snapshot => {
+                    checkedCount++;
+                    if(!snapshot.exists()) {
+                        invalidMembers.push(clean);
+                    } else {
+                        membersObj[safeU] = true;
+                    }
+
+                    if(checkedCount === memberNames.length) {
+                        if(invalidMembers.length > 0) {
+                            return alert('Los siguientes usuarios no existen: ' + invalidMembers.join(', '));
+                        }
+                        saveGroupToFirebase(name, desc, membersObj);
+                    }
+                });
+            });
+        }
+
+        function saveGroupToFirebase(name, desc, membersObj) {
+            db.ref('groups').push().set({
+                name,
+                description: desc,
+                icon: currentGroupIcon,
+                admin: currentUser.username,
+                members: membersObj,
+                createdAt: Date.now()
+            }).then(() => {
                 closeModal('newGroupModal');
-                alert('Grupo creado');
+                alert('Grupo creado con éxito');
             });
         }
 
@@ -1356,10 +1620,17 @@
             if(!u) return;
             if(!u.startsWith('@')) u = '@' + u;
             const safeU = u.replace(/[@.#$\/\[\]]/g, '_');
-            db.ref(`groups/${currentAdminGroupId}/members/${safeU}`).set(true).then(() => {
-                document.getElementById('adminAddMemberInput').value = '';
-                openGroupAdminModal(currentAdminGroupId);
-                alert('Miembro añadido');
+
+            db.ref('users/' + safeU).once('value', snapshot => {
+                if(!snapshot.exists()) {
+                    return alert('El usuario "' + u + '" no existe en la plataforma.');
+                }
+
+                db.ref(`groups/${currentAdminGroupId}/members/${safeU}`).set(true).then(() => {
+                    document.getElementById('adminAddMemberInput').value = '';
+                    openGroupAdminModal(currentAdminGroupId);
+                    alert('Miembro añadido');
+                });
             });
         }
 
@@ -1383,27 +1654,6 @@
                     alert('Grupo actualizado con éxito');
                 });
             }
-        }
-
-        function saveThemeConfig() {
-            const bgColor = document.getElementById('confBgColor').value;
-            const chatColor = document.getElementById('confChatColor').value;
-            const textColor = document.getElementById('confTextColor').value;
-            const font = document.getElementById('confFontType').value;
-
-            currentUser.theme = { bgColor, chatColor, textColor, font, bgImage: currentUser.theme.bgImage || '' };
-            applyTheme(currentUser.theme);
-            db.ref('users/' + currentUser.username.replace(/[@.#$\/\[\]]/g, '_') + '/theme').set(currentUser.theme).then(() => {
-                closeConfig();
-                alert('Tema guardado');
-            });
-        }
-
-        function applyTheme(theme) {
-            const body = document.getElementById('appBody');
-            body.className = `h-screen flex flex-col overflow-hidden ${theme.font || 'custom-font-sans'}`;
-            body.style.backgroundColor = theme.bgColor;
-            body.style.color = theme.textColor;
         }
 
         function escapeHtml(text) {
